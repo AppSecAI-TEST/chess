@@ -16,14 +16,26 @@ import net.alexblass.chess.R;
 
 public class TileAdapter extends RecyclerView.Adapter<TileAdapter.ViewHolder> {
 
-    private int[] mGameBoard = { 0, 1, 2, 3, 4, 5, 6, 7,
-                                8, 9, 10, 11, 12, 13, 14, 15,
-                                16, 17, 18, 19, 20, 21, 22, 23,
-                                24, 25, 26, 27, 28, 29, 30, 31,
-                                32, 33, 34, 35, 36, 37, 38, 39,
-                                40, 41, 42, 43, 44, 45, 46, 47,
-                                48, 49, 50, 51, 51, 53, 54, 55,
-                                56, 57, 58, 59, 60, 61, 62, 64 };
+    // Square board has 8 rows and 8 columns
+    private final int BOARD_LENGTH = 8;
+
+    // All game boards will have 64 squares so there's no need to get or set a customized array
+    /* Board should look like:
+                 0 1 2 3 4 5 6 7
+                 _ _ _ _ _ _ _ _
+              0 |_|_|_|_|_|_|_|_|
+              1 |_|_|_|_|_|_|_|_|
+              2 |_|_|_|_|_|_|_|_|
+              3 |_|_|_|_|_|_|_|_|
+              4 |_|_|_|_|_|_|_|_|
+              5 |_|_|_|_|_|_|_|_|
+              6 |_|_|_|_|_|_|_|_|
+              7 |_|_|_|_|_|_|_|_|
+         */
+    // Coordinate board in double array
+    // There are 64 rows for each tile space in the board
+    // and each row contains 1 column that holds an int array with the x,y coordinates (0-7)
+    private int[][] mGameBoardTiles = new int[BOARD_LENGTH * BOARD_LENGTH][];
 
     // Context of the activity so we can access resources
     private Context mContext;
@@ -37,6 +49,22 @@ public class TileAdapter extends RecyclerView.Adapter<TileAdapter.ViewHolder> {
     public TileAdapter (Context context) {
         this.mContext = context;
         this.mInflater = LayoutInflater.from(context);
+
+        // Initialize our board array and set our coordinates to our tiles
+        int i = 0; // The tile space number
+
+        // Number each row
+        for(int row = 0; row < BOARD_LENGTH; row++){
+            // Number each column
+            for(int col = 0; col < BOARD_LENGTH; col++){
+                int[] coordinate = {row, col};
+                mGameBoardTiles[i] = coordinate;
+                i++;
+            }
+        }
+        /* Final array should look like:
+                 mGameboardTiles = { {0,0}, {0,1}, {0,2}, ..., {7, 6}, {7,7} };
+         */
     }
 
 
@@ -52,20 +80,9 @@ public class TileAdapter extends RecyclerView.Adapter<TileAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        /*
-                 A B C D E F G H
-                 _ _ _ _ _ _ _ _
-              0 |_|_|_|_|_|_|_|_|
-              1 |_|_|_|_|_|_|_|_|
-              2 |_|_|_|_|_|_|_|_|
-              3 |_|_|_|_|_|_|_|_|
-              4 |_|_|_|_|_|_|_|_|
-              5 |_|_|_|_|_|_|_|_|
-              6 |_|_|_|_|_|_|_|_|
-              7 |_|_|_|_|_|_|_|_|
-         */
-
-        int row = (position) / 8;
+        int[] coordinates = mGameBoardTiles[position];
+        int row = coordinates[0];
+        int col = coordinates[1];
 
         // Rows 1, 3, 5, and 7 start with black tiles
         // Rows 0, 2, 4, and 6 start with white tiles
@@ -129,7 +146,7 @@ public class TileAdapter extends RecyclerView.Adapter<TileAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return mGameBoard.length;
+        return mGameBoardTiles.length;
     }
 
     public void setClickListener(ItemClickListener itemClickListener){
