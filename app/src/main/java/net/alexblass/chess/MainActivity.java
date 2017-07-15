@@ -53,14 +53,16 @@ public class MainActivity extends AppCompatActivity implements TileAdapter.ItemC
 
     @Override
     public void onItemClick(View view, int position) {
-         //Get the coordinate values for the item selected
         Piece[] piecesPlacement = mBoard.getGameBoardTiles();
-        if (piecesPlacement[position] != null){
-            Piece thisPiece = piecesPlacement[position];
-            int[] coordinates = thisPiece.getCoordinates();
-            int row = coordinates[X_INDEX];
-            int col = coordinates[Y_INDEX];
+        if (piecesPlacement[position] == null){
+            return; // If the tile is empty, return
         }
+
+        //Get the coordinate values for the item selected
+        Piece thisPiece = piecesPlacement[position];
+        int[] coordinates = thisPiece.getCoordinates();
+        int row = coordinates[X_INDEX];
+        int col = coordinates[Y_INDEX];
 
         // TODO check if a piece is on the tile and respond accordingly
     }

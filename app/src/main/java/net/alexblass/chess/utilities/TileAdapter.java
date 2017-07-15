@@ -140,6 +140,13 @@ public class TileAdapter extends RecyclerView.Adapter<TileAdapter.ViewHolder> {
         return mGameBoardTiles[index];
     }
 
+    public void changeBackgroundColor(ImageView imageView, int position){
+        if(mGameBoardTiles[position] == null){
+            return;
+        }
+        imageView.setBackgroundColor(mContext.getResources().getColor(R.color.selected));
+    }
+
     public void setClickListener(ItemClickListener itemClickListener){
         mClickListener = itemClickListener;
     }
@@ -157,6 +164,7 @@ public class TileAdapter extends RecyclerView.Adapter<TileAdapter.ViewHolder> {
         public void onClick(View v) {
             if(mClickListener != null){
                 mClickListener.onItemClick(v, getAdapterPosition());
+                changeBackgroundColor(tileImageView, getAdapterPosition());
             }
         }
     }
