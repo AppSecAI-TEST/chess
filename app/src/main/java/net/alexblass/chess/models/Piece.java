@@ -10,6 +10,10 @@ public class Piece {
     public static final int WHITE = 0; // White goes first in the game
     public static final int BLACK = 1;
 
+    // Public variables to access the index for the correct column in our array
+    public static final int X_INDEX = 0;
+    public static final int Y_INDEX = 1;
+
     // Piece names
     public static final String QUEEN = "queen";
     public static final String KING = "king";
@@ -39,12 +43,16 @@ public class Piece {
     // Keep track of where on the board the piece is
     private int[] mCoordinates;
 
-    public Piece(String name, int colorCode, int[] coordinates){
+    // The image file for the piece
+    private int mImageResourceId;
+
+    public Piece(String name, int colorCode, int[] coordinates, int imageResourceId){
         this.mName = name;
         mHasMovedFromStart = false;
         mIsActive = true;
         this.mColorCode = colorCode;
         this.mCoordinates = coordinates;
+        this.mImageResourceId = imageResourceId;
 
         switch(name){
             case "pawn":
@@ -99,5 +107,13 @@ public class Piece {
 
     public void setCoordinates(int[] coordinates) {
         this.mCoordinates = coordinates;
+    }
+
+    public int getImageResourceId() {
+        return mImageResourceId;
+    }
+
+    public void setImageResourceId(int imageResourceId) {
+        this.mImageResourceId = imageResourceId;
     }
 }

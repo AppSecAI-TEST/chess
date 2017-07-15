@@ -7,7 +7,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import net.alexblass.chess.models.GameBoard;
+import net.alexblass.chess.models.Piece;
 import net.alexblass.chess.utilities.TileAdapter;
+
+import static net.alexblass.chess.models.Piece.X_INDEX;
+import static net.alexblass.chess.models.Piece.Y_INDEX;
 
 public class MainActivity extends AppCompatActivity implements TileAdapter.ItemClickListener{
 
@@ -39,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements TileAdapter.ItemC
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
-        mBoard = new GameBoard();
+        mBoard = new GameBoard(this);
 
         mAdapter = new TileAdapter(this, mBoard);
         mAdapter.setClickListener(this);
@@ -49,10 +53,14 @@ public class MainActivity extends AppCompatActivity implements TileAdapter.ItemC
 
     @Override
     public void onItemClick(View view, int position) {
-        // Get the coordinate values for the item selected
-        int[] coorinates = mAdapter.getItem(position);
-        int row = coorinates[0];
-        int col = coorinates[1];
+         //Get the coordinate values for the item selected
+        Piece[] piecesPlacement = mBoard.getGameBoardTiles();
+        if (piecesPlacement[position] != null){
+            Piece thisPiece = piecesPlacement[position];
+            int[] coordinates = thisPiece.getCoordinates();
+            int row = coordinates[X_INDEX];
+            int col = coordinates[Y_INDEX];
+        }
 
         // TODO check if a piece is on the tile and respond accordingly
     }

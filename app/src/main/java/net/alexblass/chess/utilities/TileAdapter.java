@@ -9,8 +9,10 @@ import android.widget.ImageView;
 
 import net.alexblass.chess.R;
 import net.alexblass.chess.models.GameBoard;
+import net.alexblass.chess.models.Piece;
 
-import static net.alexblass.chess.models.GameBoard.BOARD_LENGTH;
+import static net.alexblass.chess.models.Piece.X_INDEX;
+import static net.alexblass.chess.models.Piece.Y_INDEX;
 
 /**
  * A class to correctly display the game tiles on the board.
@@ -22,7 +24,7 @@ public class TileAdapter extends RecyclerView.Adapter<TileAdapter.ViewHolder> {
     private GameBoard mBoard;
 
     // The tiles on the gameboard
-    private int[][] mGameBoardTiles;
+    private Piece[] mGameBoardTiles;
 
     // Context of the activity so we can access resources
     private Context mContext;
@@ -54,10 +56,20 @@ public class TileAdapter extends RecyclerView.Adapter<TileAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        int[] coordinates = mGameBoardTiles[position];
-        int row = coordinates[0];
-        int col = coordinates[1];
+        int row, col, imageResourceId;
+        if (mGameBoardTiles[position] != null){
+            Piece thisPiece = mGameBoardTiles[position];
+            int[] coordinates = thisPiece.getCoordinates();
+            row = coordinates[X_INDEX];
+            col = coordinates[Y_INDEX];
+            imageResourceId = thisPiece.getImageResourceId();
+            holder.tileImageView.setImageResource(imageResourceId);
+        } else {
+            row = position / 8;
+            col = position % 8;
+        }
 
+        // First, color the tiles
         // Rows 1, 3, 5, and 7 start with black tiles
         // Rows 0, 2, 4, and 6 start with white tiles
         // Determine which row color pattern is starting
@@ -124,7 +136,7 @@ public class TileAdapter extends RecyclerView.Adapter<TileAdapter.ViewHolder> {
     }
 
     // Get the coordinates of a tile
-    public int[] getItem(int index){
+    public Piece getItem(int index){
         return mGameBoardTiles[index];
     }
 
