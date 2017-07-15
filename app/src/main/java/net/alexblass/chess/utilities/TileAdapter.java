@@ -8,6 +8,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import net.alexblass.chess.R;
+import net.alexblass.chess.models.GameBoard;
+
+import static net.alexblass.chess.models.GameBoard.BOARD_LENGTH;
 
 /**
  * A class to correctly display the game tiles on the board.
@@ -15,26 +18,11 @@ import net.alexblass.chess.R;
 
 public class TileAdapter extends RecyclerView.Adapter<TileAdapter.ViewHolder> {
 
-    // Square board has 8 rows and 8 columns
-    private final int BOARD_LENGTH = 8;
+    // Our chess game's current board
+    private GameBoard mBoard;
 
-    // All game boards will have 64 squares so there's no need to get or set a customized array
-    /* Board should look like:
-                 0 1 2 3 4 5 6 7
-                 _ _ _ _ _ _ _ _
-              0 |_|_|_|_|_|_|_|_|
-              1 |_|_|_|_|_|_|_|_|
-              2 |_|_|_|_|_|_|_|_|
-              3 |_|_|_|_|_|_|_|_|
-              4 |_|_|_|_|_|_|_|_|
-              5 |_|_|_|_|_|_|_|_|
-              6 |_|_|_|_|_|_|_|_|
-              7 |_|_|_|_|_|_|_|_|
-         */
-    // Coordinate board in double array
-    // There are 64 rows for each tile space in the board
-    // and each row contains 1 column that holds an int array with the x,y coordinates (0-7)
-    private int[][] mGameBoardTiles = new int[BOARD_LENGTH * BOARD_LENGTH][];
+    // The tiles on the gameboard
+    private int[][] mGameBoardTiles;
 
     // Context of the activity so we can access resources
     private Context mContext;
@@ -45,25 +33,12 @@ public class TileAdapter extends RecyclerView.Adapter<TileAdapter.ViewHolder> {
     // A click listener so that when the image is tapped, it becomes selected
     private ItemClickListener mClickListener;
 
-    public TileAdapter (Context context) {
+    public TileAdapter (Context context, GameBoard board) {
         this.mContext = context;
         this.mInflater = LayoutInflater.from(context);
+        this.mBoard = board;
 
-        // Initialize our board array and set our coordinates to our tiles
-        int i = 0; // The tile space number
-
-        // Number each row
-        for(int row = 0; row < BOARD_LENGTH; row++){
-            // Number each column
-            for(int col = 0; col < BOARD_LENGTH; col++){
-                int[] coordinate = {row, col};
-                mGameBoardTiles[i] = coordinate;
-                i++;
-            }
-        }
-        /* Final array should look like:
-                 mGameboardTiles = { {0,0}, {0,1}, {0,2}, ..., {7, 6}, {7,7} };
-         */
+        mGameBoardTiles = mBoard.getGameBoardTiles();
     }
 
 

@@ -6,6 +6,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import net.alexblass.chess.models.GameBoard;
 import net.alexblass.chess.utilities.TileAdapter;
 
 public class MainActivity extends AppCompatActivity implements TileAdapter.ItemClickListener{
@@ -22,6 +23,9 @@ public class MainActivity extends AppCompatActivity implements TileAdapter.ItemC
     // An adapter to display images on the board correctly
     private TileAdapter mAdapter;
 
+    // A board for a new chess game
+    private GameBoard mBoard;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,7 +39,9 @@ public class MainActivity extends AppCompatActivity implements TileAdapter.ItemC
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
-        mAdapter = new TileAdapter(this);
+        mBoard = new GameBoard();
+
+        mAdapter = new TileAdapter(this, mBoard);
         mAdapter.setClickListener(this);
 
         mRecyclerView.setAdapter(mAdapter);

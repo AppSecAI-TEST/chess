@@ -7,7 +7,7 @@ package net.alexblass.chess.models;
 public class GameBoard {
 
     // Square board has 8 rows and 8 columns
-    private final int BOARD_LENGTH = 8;
+    public static final int BOARD_LENGTH = 8;
 
     // Constant values to keep track of the availability of a tile
     public static final int EMPTY_TILE = 0;
@@ -116,5 +116,9 @@ public class GameBoard {
         /* Final array should look like:
                  mGameboardTiles = { {0,0,2}, {0,1,2}, {0,2,2}, ..., {7,6,1}, {7,7,1} };
          */
+    }
+
+    public int[][] getGameBoardTiles() {
+        return mGameBoardTiles;
     }
 }
