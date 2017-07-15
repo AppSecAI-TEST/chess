@@ -7,8 +7,16 @@ package net.alexblass.chess.models;
 public class Piece {
 
     // Color codes for each player's pieces
-    private final int WHITE = 0; // White goes first in the game
-    private final int BLACK = 1;
+    public static final int WHITE = 0; // White goes first in the game
+    public static final int BLACK = 1;
+
+    // Piece names
+    public static final String QUEEN = "queen";
+    public static final String KING = "king";
+    public static final String ROOK = "rook";
+    public static final String BISHOP = "bishop";
+    public static final String KNIGHT = "knight";
+    public static final String PAWN = "pawn";
 
     // The name of the piece
     private String mName;
