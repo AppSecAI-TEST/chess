@@ -2,7 +2,6 @@ package net.alexblass.chess.utilities;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -107,7 +106,7 @@ public class TileAdapter extends RecyclerView.Adapter<TileAdapter.ViewHolder> {
 
         // Once determined the first tile color, apply black and white color pattern appropriately
         if (startsWhite) {
-            switch (position % 8){
+            switch (col){
                 case 0:
                 case 2:
                 case 4:
@@ -125,7 +124,7 @@ public class TileAdapter extends RecyclerView.Adapter<TileAdapter.ViewHolder> {
             }
         } else {
 
-            switch (position % 8){
+            switch (col){
                 case 0:
                 case 2:
                 case 4:
@@ -147,6 +146,11 @@ public class TileAdapter extends RecyclerView.Adapter<TileAdapter.ViewHolder> {
     @Override
     public int getItemCount() {
         return mGameBoardTiles.length;
+    }
+
+    // Get the coordinates of a tile
+    public int[] getItem(int index){
+        return mGameBoardTiles[index];
     }
 
     public void setClickListener(ItemClickListener itemClickListener){
