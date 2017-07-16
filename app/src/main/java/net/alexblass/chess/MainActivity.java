@@ -4,7 +4,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 
 import net.alexblass.chess.models.GameBoard;
 import net.alexblass.chess.models.Piece;
@@ -30,6 +32,18 @@ public class MainActivity extends AppCompatActivity implements TileAdapter.ItemC
     // A board for a new chess game
     private GameBoard mBoard;
 
+    // Keep track of where the user has clicked
+    // Is true by default until the user clicks the piece they want to move
+    // Then is false until the user selects a valid square to move to
+    // Upon successful move, it goes back to true
+    private boolean mFirstClick = true;
+
+    private Piece mPieceToMove;
+    int mFirstClickRow;
+    int mFirstClickCol;
+    int mSecondClickRow;
+    int mSecondClickCol;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,18 +66,37 @@ public class MainActivity extends AppCompatActivity implements TileAdapter.ItemC
     }
 
     @Override
-    public void onItemClick(View view, int position) {
+    public void onItemClick(View view, int position, ImageView imageView) {
+
         Piece[] piecesPlacement = mBoard.getGameBoardTiles();
-        if (piecesPlacement[position] == null){
-            return; // If the tile is empty, return
+
+        // If it's the first click, verify there's a valid piece on the square
+        if (mFirstClick){
+            if (piecesPlacement[position] != null){
+                //Get the coordinate values for the item selected
+                mPieceToMove = piecesPlacement[position];
+                int[] coordinates = mPieceToMove.getCoordinates();
+                mFirstClickRow = coordinates[X_INDEX];
+                mFirstClickCol = coordinates[Y_INDEX];
+
+                imageView.setBackgroundColor(
+                        getApplicationContext().getResources().getColor(R.color.selected));
+
+                // First click successfully ended
+                mFirstClick = false;
+            }
+        } else { // If this is not the first click, the next square must be empty
+            if (piecesPlacement[position] == null){
+                mSecondClickRow = position / 8;
+                mSecondClickCol = position % 8;
+
+                mBoard.movePieceTo(mPieceToMove, mSecondClickRow, mSecondClickCol);
+                mPieceToMove.setCoordinates(new int[]{mSecondClickRow, mSecondClickCol});
+
+                mAdapter.setGameBoard(mBoard);
+
+                mFirstClick = true;
+            }
         }
-
-        //Get the coordinate values for the item selected
-        Piece thisPiece = piecesPlacement[position];
-        int[] coordinates = thisPiece.getCoordinates();
-        int row = coordinates[X_INDEX];
-        int col = coordinates[Y_INDEX];
-
-        // TODO check if a piece is on the tile and respond accordingly
     }
 }

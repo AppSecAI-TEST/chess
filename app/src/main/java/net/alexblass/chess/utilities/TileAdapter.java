@@ -135,16 +135,14 @@ public class TileAdapter extends RecyclerView.Adapter<TileAdapter.ViewHolder> {
         return mGameBoardTiles.length;
     }
 
-    // Get the coordinates of a tile
+    // Get the piece clicked on if there is one
     public Piece getItem(int index){
         return mGameBoardTiles[index];
     }
 
-    public void changeBackgroundColor(ImageView imageView, int position){
-        if(mGameBoardTiles[position] == null){
-            return;
-        }
-        imageView.setBackgroundColor(mContext.getResources().getColor(R.color.selected));
+    public void setGameBoard(GameBoard board) {
+        this.mBoard = board;
+        notifyDataSetChanged();
     }
 
     public void setClickListener(ItemClickListener itemClickListener){
@@ -163,14 +161,13 @@ public class TileAdapter extends RecyclerView.Adapter<TileAdapter.ViewHolder> {
         @Override
         public void onClick(View v) {
             if(mClickListener != null){
-                mClickListener.onItemClick(v, getAdapterPosition());
-                changeBackgroundColor(tileImageView, getAdapterPosition());
+                mClickListener.onItemClick(v, getAdapterPosition(), tileImageView);
             }
         }
     }
 
     // MainActivity.java will respond by implementing this
     public interface ItemClickListener {
-        void onItemClick(View view, int position);
+        void onItemClick(View view, int position, ImageView imageView);
     }
 }

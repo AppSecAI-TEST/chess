@@ -1,6 +1,7 @@
 package net.alexblass.chess.models;
 
 import android.content.Context;
+import android.util.Log;
 
 import net.alexblass.chess.R;
 
@@ -140,5 +141,22 @@ public class GameBoard {
 
     public void getPieceAtCoordinates(int x, int y){
         // TODO find piece at teh coordinates given
+    }
+
+    public void movePieceTo(Piece piece, int x, int y){
+
+        // Clear old tile
+        int[] oldCoordinates = piece.getCoordinates();
+        int oldX = oldCoordinates[0];
+        int oldY = oldCoordinates[1];
+
+        int oldIndex = (oldX * BOARD_LENGTH) + oldY;
+
+        mGameBoardTiles[oldIndex] = null;
+
+        // Set move piece to new tile
+        int index = (x * BOARD_LENGTH) + y;
+
+        mGameBoardTiles[index] = piece;
     }
 }
