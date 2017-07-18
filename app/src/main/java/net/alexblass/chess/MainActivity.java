@@ -2,29 +2,18 @@ package net.alexblass.chess;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
+import android.widget.AdapterView;
+import android.widget.GridView;
 
 import net.alexblass.chess.models.GameBoard;
 import net.alexblass.chess.models.Piece;
 import net.alexblass.chess.utilities.TileAdapter;
 
-import static net.alexblass.chess.models.Piece.X_INDEX;
-import static net.alexblass.chess.models.Piece.Y_INDEX;
+public class MainActivity extends AppCompatActivity {
 
-public class MainActivity extends AppCompatActivity implements TileAdapter.ItemClickListener{
-
-    // Chess boards are 8 x 8
-    private final int BOARD_COLS = 8;
-
-    // A RecyclerView to display each game tile ImageView
-    private RecyclerView mRecyclerView;
-
-    // A GridLayoutManager to display our RecyclerView of images as a game board
-    private GridLayoutManager mLayoutManager;
+    // A GridView to display each game tile ImageView
+    private GridView mGridView;
 
     // An adapter to display images on the board correctly
     private TileAdapter mAdapter;
@@ -49,54 +38,46 @@ public class MainActivity extends AppCompatActivity implements TileAdapter.ItemC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.boardRecyclerView);
+        mGridView = (GridView) findViewById(R.id.boardGridView);
 
-        // Set up an 8 column grid for our board
-        mLayoutManager = new GridLayoutManager(this, BOARD_COLS);
+        mBoard = new GameBoard();
 
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setHasFixedSize(true);
+        mAdapter = new TileAdapter(this, mBoard.getGameBoardTiles());
+        mGridView.setAdapter(mAdapter);
 
-        mBoard = new GameBoard(this);
+        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Piece[] piecesPlacement = mBoard.getGameBoardTiles();
 
-        mAdapter = new TileAdapter(this, mBoard);
-        mAdapter.setClickListener(this);
+                // If it's the first click, verify there's a valid piece on the square
+                if (mFirstClick){
+                    if (piecesPlacement[position] != null){
+                        //Get the coordinate values for the item selected
+                        mPieceToMove = piecesPlacement[position];
+                        mFirstClickRow = mPieceToMove.getRowX();
+                        mFirstClickCol = mPieceToMove.getColY();
 
-        mRecyclerView.setAdapter(mAdapter);
-    }
+                        view.setBackgroundColor(
+                                getApplicationContext().getResources().getColor(R.color.selected));
 
-    @Override
-    public void onItemClick(View view, int position, ImageView imageView) {
+                        // First click successfully ended
+                        mFirstClick = false;
+                    }
+                } else { // If this is not the first click, the next square must be empty
+                    if (piecesPlacement[position] == null){
+                        mSecondClickRow = position / 8;
+                        mSecondClickCol = position % 8;
 
-        Piece[] piecesPlacement = mBoard.getGameBoardTiles();
+                        mBoard.movePieceTo(mPieceToMove, mSecondClickRow, mSecondClickCol);
 
-        // If it's the first click, verify there's a valid piece on the square
-        if (mFirstClick){
-            if (piecesPlacement[position] != null){
-                //Get the coordinate values for the item selected
-                mPieceToMove = piecesPlacement[position];
-                int[] coordinates = mPieceToMove.getCoordinates();
-                mFirstClickRow = coordinates[X_INDEX];
-                mFirstClickCol = coordinates[Y_INDEX];
+                        mAdapter.setGameBoard(mBoard.getGameBoardTiles());
 
-                imageView.setBackgroundColor(
-                        getApplicationContext().getResources().getColor(R.color.selected));
-
-                // First click successfully ended
-                mFirstClick = false;
+                        mFirstClick = true;
+                    }
+                }
             }
-        } else { // If this is not the first click, the next square must be empty
-            if (piecesPlacement[position] == null){
-                mSecondClickRow = position / 8;
-                mSecondClickCol = position % 8;
+        });
 
-                mBoard.movePieceTo(mPieceToMove, mSecondClickRow, mSecondClickCol);
-                mPieceToMove.setCoordinates(new int[]{mSecondClickRow, mSecondClickCol});
-
-                mAdapter.setGameBoard(mBoard);
-
-                mFirstClick = true;
-            }
-        }
     }
 }

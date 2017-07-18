@@ -1,30 +1,20 @@
 package net.alexblass.chess.utilities;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
 import net.alexblass.chess.R;
-import net.alexblass.chess.models.GameBoard;
 import net.alexblass.chess.models.Piece;
-
-import static net.alexblass.chess.models.Piece.X_INDEX;
-import static net.alexblass.chess.models.Piece.Y_INDEX;
 
 /**
  * A class to correctly display the game tiles on the board.
  */
 
-public class TileAdapter extends RecyclerView.Adapter<TileAdapter.ViewHolder> {
-
-    // Our chess game's current board
-    private GameBoard mBoard;
-
-    // The tiles on the gameboard
-    private Piece[] mGameBoardTiles;
+public class TileAdapter extends ArrayAdapter{
 
     // Context of the activity so we can access resources
     private Context mContext;
@@ -32,142 +22,85 @@ public class TileAdapter extends RecyclerView.Adapter<TileAdapter.ViewHolder> {
     // An inflater so we can set our tiles to the right layout
     private LayoutInflater mInflater;
 
-    // A click listener so that when the image is tapped, it becomes selected
-    private ItemClickListener mClickListener;
+    // The tiles on the gameboard
+    private Piece[] mGameBoardTiles;
 
-    public TileAdapter (Context context, GameBoard board) {
+    public TileAdapter(Context context, Piece[] pieces) {
+        super(context, R.layout.item_tile, pieces);
+
         this.mContext = context;
         this.mInflater = LayoutInflater.from(context);
-        this.mBoard = board;
-
-        mGameBoardTiles = mBoard.getGameBoardTiles();
+        this.mGameBoardTiles = pieces;
     }
 
-
-    // Creates the ViewHolder layout
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = mInflater.inflate(R.layout.item_tile, parent, false);
-        ViewHolder viewHolder = new ViewHolder(view);
-        return viewHolder;
-    }
+    public View getView(int position, View convertView, ViewGroup parent) {
+        View gameTile = convertView;
+        ViewHolder holder;
 
-    // Binds the ViewHolder to the RecyclerView with the specified colors and images
-    @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+        Piece thisGamePiece = mGameBoardTiles[position];
 
-        int row, col, imageResourceId;
-        if (mGameBoardTiles[position] != null){
-            Piece thisPiece = mGameBoardTiles[position];
-            int[] coordinates = thisPiece.getCoordinates();
-            row = coordinates[X_INDEX];
-            col = coordinates[Y_INDEX];
-            imageResourceId = thisPiece.getImageResourceId();
-            holder.tileImageView.setImageResource(imageResourceId);
+        // Inflate the layout for the tile
+        if (gameTile == null) {
+            gameTile = mInflater.inflate(R.layout.item_tile, parent, false);
+            holder = new ViewHolder();
+            holder.tileImageView = (ImageView) gameTile.findViewById(R.id.tileImageView);
+            gameTile.setTag(holder);
         } else {
-            row = position / 8;
-            col = position % 8;
+            holder = (ViewHolder) gameTile.getTag();
         }
 
-        // First, color the tiles
-        // Rows 1, 3, 5, and 7 start with black tiles
-        // Rows 0, 2, 4, and 6 start with white tiles
+        // Set the Piece image on the tile if there is a Piece on this tile
+        if (thisGamePiece != null) {
+            holder.tileImageView.setImageResource(thisGamePiece.getImageResourceId());
+        } else { // Reset empty tiles for pieces that have been moved
+            holder.tileImageView.setImageResource(0);
+        }
+
+        // Set the background color to the checker pattern
+        int backgroundColor = setBackgroundColor(position);
+        holder.tileImageView.setBackgroundColor(mContext.getResources().getColor(backgroundColor));
+
+        return gameTile;
+    }
+
+    // Determine which color the tile should be
+    public int setBackgroundColor(int position){
+        int row = position / 8;
+        int col = position % 8;
+
         // Determine which row color pattern is starting
+        // 0 and even rows start with white
+        // Odd rows start with black
         boolean startsWhite;
-        switch (row)
-        {
-            case 0:
-            case 2:
-            case 4:
-            case 6:
-                startsWhite = true;
-                break;
-            case 1:
-            case 3:
-            case 5:
-            case 7:
-            default:
-                startsWhite = false;
-                break;
+        if (row % 2 == 0) {
+            startsWhite = true;
+        } else {
+            startsWhite = false;
         }
 
         // Once determined the first tile color, apply black and white color pattern appropriately
         if (startsWhite) {
-            switch (col){
-                case 0:
-                case 2:
-                case 4:
-                case 6:
-                    holder.tileImageView.setBackgroundColor(mContext.getResources().getColor(
-                            R.color.white));
-                    break;
-                case 1:
-                case 3:
-                case 5:
-                case 7:
-                    holder.tileImageView.setBackgroundColor(mContext.getResources().getColor(
-                            R.color.black));
-                    break;
+            if (col % 2 == 0) {
+                return R.color.white;
+            } else {
+                return R.color.black;
             }
         } else {
-
-            switch (col){
-                case 0:
-                case 2:
-                case 4:
-                case 6:
-                    holder.tileImageView.setBackgroundColor(mContext.getResources().getColor(
-                            R.color.black));
-                    break;
-                case 1:
-                case 3:
-                case 5:
-                case 7:
-                    holder.tileImageView.setBackgroundColor(mContext.getResources().getColor(
-                            R.color.white));
-                    break;
+            if (col % 2 == 0) {
+                return R.color.black;
+            } else {
+                return R.color.white;
             }
         }
     }
 
-    @Override
-    public int getItemCount() {
-        return mGameBoardTiles.length;
-    }
-
-    // Get the piece clicked on if there is one
-    public Piece getItem(int index){
-        return mGameBoardTiles[index];
-    }
-
-    public void setGameBoard(GameBoard board) {
-        this.mBoard = board;
+    public void setGameBoard(Piece[] boardPlacement) {
+        this.mGameBoardTiles = boardPlacement;
         notifyDataSetChanged();
     }
 
-    public void setClickListener(ItemClickListener itemClickListener){
-        mClickListener = itemClickListener;
-    }
-
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-        public ImageView tileImageView;
-
-        public ViewHolder(View itemView){
-            super(itemView);
-            tileImageView = (ImageView) itemView.findViewById(R.id.tileImageView);
-            itemView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            if(mClickListener != null){
-                mClickListener.onItemClick(v, getAdapterPosition(), tileImageView);
-            }
-        }
-    }
-
-    // MainActivity.java will respond by implementing this
-    public interface ItemClickListener {
-        void onItemClick(View view, int position, ImageView imageView);
+    static class ViewHolder {
+        ImageView tileImageView;
     }
 }

@@ -17,10 +17,10 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/boardRecyclerView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <GridView
+        android:id="@+id/boardGridView"
+        android:layout_width="@dimen/board_size"
+        android:layout_height="@dimen/board_size"
         android:layout_marginLeft="@dimen/app_margin"
         android:layout_marginRight="@dimen/app_margin"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -29,8 +29,11 @@
         app:layout_constraintTop_toBottomOf="@+id/player1_lbl"
         app:layout_constraintHorizontal_bias="0.437"
         android:layout_marginBottom="@dimen/small_padding"
-
-        app:layout_constraintBottom_toTopOf="@+id/player1_2bl" />
+        app:layout_constraintBottom_toTopOf="@+id/player1_2bl"
+        android:columnWidth="@dimen/tile_size"
+        android:numColumns="8"
+        android:verticalSpacing="@dimen/zero"
+        android:horizontalSpacing="@dimen/zero"/>
 
     <TextView
         android:id="@+id/player1_2bl"

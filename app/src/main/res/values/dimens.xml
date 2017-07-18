@@ -6,4 +6,5 @@
     <dimen name="zero">0dp</dimen>
 
     <dimen name="tile_size">42dp</dimen>
+    <dimen name="board_size">336dp</dimen>
 </resources>

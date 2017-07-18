@@ -5,6 +5,8 @@ import android.util.Log;
 
 import net.alexblass.chess.R;
 
+import java.util.ArrayList;
+
 /**
  * The GameBoard keeps track of the available spaces and what pieces are on what space.
  */
@@ -14,12 +16,6 @@ public class GameBoard {
     // Square board has 8 rows and 8 columns
     public static final int BOARD_LENGTH = 8;
 
-    // Constant values to keep track of the availability of a tile
-    public static final int EMPTY_TILE = 0;
-    public static final int TAKEN_BY_WHITE = 1;
-    public static final int TAKEN_BY_BLACK = 2;
-
-    // All game boards will have 64 squares so there's no need to get or set a customized array
     /* Board should look like:
                  0 1 2 3 4 5 6 7
                  _ _ _ _ _ _ _ _
@@ -32,9 +28,12 @@ public class GameBoard {
               6 |_|_|_|_|_|_|_|_| // White home row
               7 |_|_|_|_|_|_|_|_| // White home row
          */
-    // Coordinate board in double array
-    // There are 64 rows for each tile space in the board
-    // and each row contains 1 column that holds an int array with the x,y coordinates (0-7)
+    // There are 64 tiles for each space on the board
+    // We're holding the list of tiles as an Array of Pieces
+    // so we can populate it into a GridView with our Adapter
+    // To determine the position in the list with an x and y
+    // coordinate, use (x * BOARD_LENGTH) + y. This formula
+    // is already saved in our Piece class in mListPosition
     private Piece[] mGameBoardTiles = new Piece[BOARD_LENGTH * BOARD_LENGTH];
 
     // Pieces for white and black players
@@ -46,49 +45,49 @@ public class GameBoard {
             mPawnB7, mPawnB8;
 
     // Create a new gameboard for a new game of chess
-    public GameBoard(Context context){
+    public GameBoard(){
         // Initialize the chess pieces
         // WHITE:
-        mPawnW1 = new Piece(Piece.PAWN, Piece.WHITE, new int[]{6,0}, R.drawable.pawn_w);
-        mPawnW2 = new Piece(Piece.PAWN, Piece.WHITE, new int[]{6,1}, R.drawable.pawn_w);
-        mPawnW3 = new Piece(Piece.PAWN, Piece.WHITE, new int[]{6,2}, R.drawable.pawn_w);
-        mPawnW4 = new Piece(Piece.PAWN, Piece.WHITE, new int[]{6,3}, R.drawable.pawn_w);
-        mPawnW5 = new Piece(Piece.PAWN, Piece.WHITE, new int[]{6,4}, R.drawable.pawn_w);
-        mPawnW6 = new Piece(Piece.PAWN, Piece.WHITE, new int[]{6,5}, R.drawable.pawn_w);
-        mPawnW7 = new Piece(Piece.PAWN, Piece.WHITE, new int[]{6,6}, R.drawable.pawn_w);
-        mPawnW8 = new Piece(Piece.PAWN, Piece.WHITE, new int[]{6,7}, R.drawable.pawn_w);
+        mPawnW1 = new Piece(Piece.PAWN, Piece.WHITE, 6, 0, R.drawable.pawn_w);
+        mPawnW2 = new Piece(Piece.PAWN, Piece.WHITE, 6, 1, R.drawable.pawn_w);
+        mPawnW3 = new Piece(Piece.PAWN, Piece.WHITE, 6, 2, R.drawable.pawn_w);
+        mPawnW4 = new Piece(Piece.PAWN, Piece.WHITE, 6, 3, R.drawable.pawn_w);
+        mPawnW5 = new Piece(Piece.PAWN, Piece.WHITE, 6, 4, R.drawable.pawn_w);
+        mPawnW6 = new Piece(Piece.PAWN, Piece.WHITE, 6, 5, R.drawable.pawn_w);
+        mPawnW7 = new Piece(Piece.PAWN, Piece.WHITE, 6, 6, R.drawable.pawn_w);
+        mPawnW8 = new Piece(Piece.PAWN, Piece.WHITE, 6, 7, R.drawable.pawn_w);
 
-        mRookW1 = new Piece(Piece.ROOK, Piece.WHITE, new int[]{7,0}, R.drawable.rook_w);
-        mKnightW1 = new Piece(Piece.KNIGHT, Piece.WHITE, new int[]{7,1}, R.drawable.knight_w);
-        mBishopW1 = new Piece(Piece.BISHOP, Piece.WHITE, new int[]{7,2}, R.drawable.bishop_w);
-        mQueenW = new Piece(Piece.QUEEN, Piece.WHITE, new int[]{7,3}, R.drawable.queen_w);
-        mKingW = new Piece(Piece.KING, Piece.WHITE, new int[]{7,4}, R.drawable.king_w);
-        mBishopW2 = new Piece(Piece.BISHOP, Piece.WHITE, new int[]{7,5}, R.drawable.bishop_w);
-        mKnightW2 = new Piece(Piece.KNIGHT, Piece.WHITE, new int[]{7,6}, R.drawable.knight_w);
-        mRookW2 = new Piece(Piece.ROOK, Piece.WHITE, new int[]{7,7}, R.drawable.rook_w);
+        mRookW1 = new Piece(Piece.ROOK, Piece.WHITE, 7, 0, R.drawable.rook_w);
+        mKnightW1 = new Piece(Piece.KNIGHT, Piece.WHITE, 7, 1, R.drawable.knight_w);
+        mBishopW1 = new Piece(Piece.BISHOP, Piece.WHITE, 7, 2, R.drawable.bishop_w);
+        mQueenW = new Piece(Piece.QUEEN, Piece.WHITE, 7, 3, R.drawable.queen_w);
+        mKingW = new Piece(Piece.KING, Piece.WHITE, 7, 4, R.drawable.king_w);
+        mBishopW2 = new Piece(Piece.BISHOP, Piece.WHITE, 7, 5, R.drawable.bishop_w);
+        mKnightW2 = new Piece(Piece.KNIGHT, Piece.WHITE, 7, 6, R.drawable.knight_w);
+        mRookW2 = new Piece(Piece.ROOK, Piece.WHITE, 7, 7, R.drawable.rook_w);
 
         // BLACK:
-        mRookB1 = new Piece(Piece.ROOK, Piece.BLACK, new int[]{0,0}, R.drawable.rook_b);
-        mKnightB1 = new Piece(Piece.KNIGHT, Piece.BLACK, new int[]{0,1}, R.drawable.knight_b);
-        mBishopB1 = new Piece(Piece.BISHOP, Piece.BLACK, new int[]{0,2}, R.drawable.bishop_b);
-        mQueenB = new Piece(Piece.QUEEN, Piece.BLACK, new int[]{0,3}, R.drawable.queen_b);
-        mKingB = new Piece(Piece.KING, Piece.BLACK, new int[]{0,4}, R.drawable.king_b);
-        mBishopB2 = new Piece(Piece.BISHOP, Piece.BLACK, new int[]{0,5}, R.drawable.bishop_b);
-        mKnightB2 = new Piece(Piece.KNIGHT, Piece.BLACK, new int[]{0,6}, R.drawable.knight_b);
-        mRookB2 = new Piece(Piece.ROOK, Piece.BLACK, new int[]{0,7}, R.drawable.rook_b);
+        mRookB1 = new Piece(Piece.ROOK, Piece.BLACK, 0, 0, R.drawable.rook_b);
+        mKnightB1 = new Piece(Piece.KNIGHT, Piece.BLACK, 0, 1, R.drawable.knight_b);
+        mBishopB1 = new Piece(Piece.BISHOP, Piece.BLACK, 0, 2, R.drawable.bishop_b);
+        mQueenB = new Piece(Piece.QUEEN, Piece.BLACK, 0, 3, R.drawable.queen_b);
+        mKingB = new Piece(Piece.KING, Piece.BLACK, 0, 4, R.drawable.king_b);
+        mBishopB2 = new Piece(Piece.BISHOP, Piece.BLACK, 0, 5, R.drawable.bishop_b);
+        mKnightB2 = new Piece(Piece.KNIGHT, Piece.BLACK, 0, 6, R.drawable.knight_b);
+        mRookB2 = new Piece(Piece.ROOK, Piece.BLACK, 0, 7, R.drawable.rook_b);
 
-        mPawnB1 = new Piece(Piece.PAWN, Piece.BLACK, new int[]{1,0}, R.drawable.pawn_b);
-        mPawnB2 = new Piece(Piece.PAWN, Piece.BLACK, new int[]{1,1}, R.drawable.pawn_b);
-        mPawnB3 = new Piece(Piece.PAWN, Piece.BLACK, new int[]{1,2}, R.drawable.pawn_b);
-        mPawnB4 = new Piece(Piece.PAWN, Piece.BLACK, new int[]{1,3}, R.drawable.pawn_b);
-        mPawnB5 = new Piece(Piece.PAWN, Piece.BLACK, new int[]{1,4}, R.drawable.pawn_b);
-        mPawnB6 = new Piece(Piece.PAWN, Piece.BLACK, new int[]{1,5}, R.drawable.pawn_b);
-        mPawnB7 = new Piece(Piece.PAWN, Piece.BLACK, new int[]{1,6}, R.drawable.pawn_b);
-        mPawnB8 = new Piece(Piece.PAWN, Piece.BLACK, new int[]{1,7}, R.drawable.pawn_b);
+        mPawnB1 = new Piece(Piece.PAWN, Piece.BLACK, 1, 0, R.drawable.pawn_b);
+        mPawnB2 = new Piece(Piece.PAWN, Piece.BLACK, 1, 1, R.drawable.pawn_b);
+        mPawnB3 = new Piece(Piece.PAWN, Piece.BLACK, 1, 2, R.drawable.pawn_b);
+        mPawnB4 = new Piece(Piece.PAWN, Piece.BLACK, 1, 3, R.drawable.pawn_b);
+        mPawnB5 = new Piece(Piece.PAWN, Piece.BLACK, 1, 4, R.drawable.pawn_b);
+        mPawnB6 = new Piece(Piece.PAWN, Piece.BLACK, 1, 5, R.drawable.pawn_b);
+        mPawnB7 = new Piece(Piece.PAWN, Piece.BLACK, 1, 6, R.drawable.pawn_b);
+        mPawnB8 = new Piece(Piece.PAWN, Piece.BLACK, 1, 7, R.drawable.pawn_b);
 
-        // Place pieces on the board
-        // We use a single array so we can pass this array to the TileAdapter
-        // And the array will be read to populate the RecyclerView with images
+        // Place pieces in the Array so we can pass
+        // them to our adapter to display their images
+        // in our GridView
 
         mGameBoardTiles[0] = mRookB1;
         mGameBoardTiles[1] = mKnightB1;
@@ -130,8 +129,8 @@ public class GameBoard {
 
         // Set the empty tiles
         for(int i = 16; i < 48; i++){
-                mGameBoardTiles[i] = null;
-                i++;
+            mGameBoardTiles[i] = null;
+            i++;
         }
     }
 
@@ -139,24 +138,21 @@ public class GameBoard {
         return mGameBoardTiles;
     }
 
-    public void getPieceAtCoordinates(int x, int y){
-        // TODO find piece at teh coordinates given
+    public Piece getPieceAtCoordinates(int x, int y){
+        int position = (x * BOARD_LENGTH) + y;
+        return mGameBoardTiles[position];
     }
 
     public void movePieceTo(Piece piece, int x, int y){
 
         // Clear old tile
-        int[] oldCoordinates = piece.getCoordinates();
-        int oldX = oldCoordinates[0];
-        int oldY = oldCoordinates[1];
-
-        int oldIndex = (oldX * BOARD_LENGTH) + oldY;
+        int oldIndex = piece.getListPosition();
 
         mGameBoardTiles[oldIndex] = null;
 
         // Set move piece to new tile
         int index = (x * BOARD_LENGTH) + y;
-
         mGameBoardTiles[index] = piece;
+        piece.setCoordinates(x, y);
     }
 }
