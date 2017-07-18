@@ -1,6 +1,5 @@
 package net.alexblass.chess;
 
-import android.content.res.Resources;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -12,13 +11,13 @@ import net.alexblass.chess.models.GameBoard;
 import net.alexblass.chess.models.Piece;
 import net.alexblass.chess.utilities.TileAdapter;
 
-import static net.alexblass.chess.models.GameBoard.BOARD_LENGTH;
 import static net.alexblass.chess.models.Piece.BISHOP;
 import static net.alexblass.chess.models.Piece.KING;
 import static net.alexblass.chess.models.Piece.KNIGHT;
 import static net.alexblass.chess.models.Piece.PAWN;
 import static net.alexblass.chess.models.Piece.QUEEN;
 import static net.alexblass.chess.models.Piece.ROOK;
+import static net.alexblass.chess.models.Piece.WHITE;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -111,9 +110,24 @@ public class MainActivity extends AppCompatActivity {
         // Check position validity
         switch (piece.getName()){
             case PAWN:
+                // TODO: Pawns can capture diagonal pieces
+                int rowChangeValue;
+                if(piece.getColorCode() == WHITE){
+                    // White pieces can only move up on the board (towards row 0)
+                    rowChangeValue = -1;
+                } else { // Black pieces can only move down on the board (towards row 7)
+                    rowChangeValue = 1;
+                }
+
+                // Pawns can move 2 squares on the first move
+                int firstMoveRowChange = rowChangeValue;
+                if(piece.hasMovedFromStart() == false){
+                    firstMoveRowChange = rowChangeValue * 2;
+                }
+
                 // Pawns can only move one up or down
-                // TODO: White and black pawns can only move in one direction
-                if(Math.abs(changeRow) == 1 && changeCol == 0){
+                if((changeRow == rowChangeValue || changeRow == firstMoveRowChange)
+                        && changeCol == 0){
                     validMove = true;
                 }
                 break;

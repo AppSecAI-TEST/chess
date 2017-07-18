@@ -1,11 +1,6 @@
 package net.alexblass.chess.models;
 
-import android.content.Context;
-import android.util.Log;
-
 import net.alexblass.chess.R;
-
-import java.util.ArrayList;
 
 /**
  * The GameBoard keeps track of the available spaces and what pieces are on what space.
@@ -154,5 +149,6 @@ public class GameBoard {
         int index = (x * BOARD_LENGTH) + y;
         mGameBoardTiles[index] = piece;
         piece.setCoordinates(x, y);
+        piece.setHasMovedFromStart(true);
     }
 }
