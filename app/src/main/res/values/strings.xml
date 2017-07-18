@@ -2,4 +2,6 @@
     <string name="app_name">Chess</string>
     <string name="player1_lbl">Player 1</string>
     <string name="player2_lbl">Player 2</string>
+
+    <string name="invalid_move">Invalid move</string>
 </resources>
