@@ -2,6 +2,7 @@ package net.alexblass.chess;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -150,7 +151,62 @@ public class MainActivity extends AppCompatActivity {
                 if((changeRow == 0 && changeCol != 0) ||
                         // Or vertically across a column
                         (changeCol == 0 && changeRow != 0)){
-                    validMove = true;
+
+                    // Check for obstructions
+                    Piece checkForNullPiece;
+                    if (oldRow < newRow){ // Moving downward
+                        // Use int i = oldRow + 1 to offset tile by one
+                        // to avoid a logic error reading the piece to be moved
+                        // as an obstacle.
+                        for (int i = oldRow + 1; i <= newRow; i++){
+                            checkForNullPiece = mBoard.getPieceAtCoordinates(i, newCol);
+                            if (checkForNullPiece != null){
+                                validMove = false;
+                                return validMove;
+                            } else {
+                                validMove = true;
+                            }
+                        }
+                    } else if (oldRow > newRow){ // Moving upward
+                        // Use int i = oldRow - 1 to offset tile by one
+                        // to avoid a logic error reading the piece to be moved
+                        // as an obstacle.
+                        for (int i = oldRow - 1; i >= newRow; i--){
+                            checkForNullPiece = mBoard.getPieceAtCoordinates(i, newCol);
+                            if (checkForNullPiece != null){
+                                validMove = false;
+                                return validMove;
+                            } else {
+                                validMove = true;
+                            }
+                        }
+                    } else if (oldCol < newCol){ // Moving right
+                        // Use int i = oldCol + 1 to offset tile by one
+                        // to avoid a logic error reading the piece to be moved
+                        // as an obstacle.
+                        for (int i = oldCol + 1; i <= newCol; i++){
+                            checkForNullPiece = mBoard.getPieceAtCoordinates(newRow, i);
+                            if (checkForNullPiece != null){
+                                validMove = false;
+                                return validMove;
+                            } else {
+                                validMove = true;
+                            }
+                        }
+                    } else if (oldCol > newCol){ // Moving left
+                        // Use int i = oldCol - 1 to offset tile by one
+                        // to avoid a logic error reading the piece to be moved
+                        // as an obstacle.
+                        for (int i = oldCol - 1; i >= newCol; i--){
+                            checkForNullPiece = mBoard.getPieceAtCoordinates(newRow, i);
+                            if (checkForNullPiece != null){
+                                validMove = false;
+                                return validMove;
+                            } else {
+                                validMove = true;
+                            }
+                        }
+                    }
                 }
                 break;
             case QUEEN:
