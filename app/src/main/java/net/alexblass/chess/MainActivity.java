@@ -163,8 +163,11 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
             case KING:
-                // Kings can move one up or down or left or right
-                if(Math.abs(changeRow) == 1 || Math.abs(changeCol) == 1){
+                // Kings can move to any adjacent tile
+                // Kings can move either one up or down and one or none left or right
+                if((Math.abs(changeRow) == 1 && Math.abs(changeCol) <= 1)
+                        // Or kings can move one left or right and one or none up and down
+                        || (Math.abs(changeCol) == 1 && Math.abs(changeRow) <= 1)){
                     validMove = true;
                 }
                 break;
