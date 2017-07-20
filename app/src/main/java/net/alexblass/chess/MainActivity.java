@@ -108,6 +108,8 @@ public class MainActivity extends AppCompatActivity {
         int changeRow = newRow - oldRow;
         int changeCol = newCol - oldCol;
 
+        Piece checkForNullPiece;
+
         // Check position validity
         switch (piece.getName()){
             case PAWN:
@@ -143,7 +145,75 @@ public class MainActivity extends AppCompatActivity {
             case BISHOP:
                 // Bishops can move in any direction diagonally
                 if (Math.abs(changeRow) == Math.abs(changeCol)){
-                    validMove = true;
+                    if (oldRow < newRow && oldCol < newCol){ // Moving down and right
+                        // Offset tile by one to avoid a logic error
+                        // reading the piece to be moved as an obstacle.
+                        int r = oldRow + 1;
+                        int c = oldCol + 1;
+                        while (r <= newRow) {
+                            // Check for obstructions
+                            checkForNullPiece = mBoard.getPieceAtCoordinates(r, c);
+                            if (checkForNullPiece != null){
+                                validMove = false;
+                                return validMove;
+                            } else {
+                                validMove = true;
+                            }
+                            r++;
+                            c++;
+                        }
+                    } else if (oldRow > newRow && oldCol < newCol){ // Moving up and right
+                        // Offset tile by one to avoid a logic error
+                        // reading the piece to be moved as an obstacle.
+                        int r = oldRow - 1;
+                        int c = oldCol + 1;
+                        while (r >= newRow) {
+                            // Check for obstructions
+                            checkForNullPiece = mBoard.getPieceAtCoordinates(r, c);
+                            if (checkForNullPiece != null){
+                                validMove = false;
+                                return validMove;
+                            } else {
+                                validMove = true;
+                            }
+                            r--;
+                            c++;
+                        }
+                    } else if (oldRow > newRow && oldCol > newCol){ // Moving up and left
+                        // Offset tile by one to avoid a logic error
+                        // reading the piece to be moved as an obstacle.
+                        int r = oldRow - 1;
+                        int c = oldCol - 1;
+                        while (r >= newRow) {
+                            // Check for obstructions
+                            checkForNullPiece = mBoard.getPieceAtCoordinates(r, c);
+                            if (checkForNullPiece != null){
+                                validMove = false;
+                                return validMove;
+                            } else {
+                                validMove = true;
+                            }
+                            r--;
+                            c--;
+                        }
+                    } else if (oldRow < newRow && oldCol > newCol){ // Moving down and left
+                        // Offset tile by one to avoid a logic error
+                        // reading the piece to be moved as an obstacle.
+                        int r = oldRow + 1;
+                        int c = oldCol - 1;
+                        while (r <= newRow) {
+                            // Check for obstructions
+                            checkForNullPiece = mBoard.getPieceAtCoordinates(r, c);
+                            if (checkForNullPiece != null){
+                                validMove = false;
+                                return validMove;
+                            } else {
+                                validMove = true;
+                            }
+                            r++;
+                            c--;
+                        }
+                    }
                 }
                 break;
             case ROOK:
@@ -153,7 +223,6 @@ public class MainActivity extends AppCompatActivity {
                         (changeCol == 0 && changeRow != 0)){
 
                     // Check for obstructions
-                    Piece checkForNullPiece;
                     if (oldRow < newRow){ // Moving downward
                         // Use int i = oldRow + 1 to offset tile by one
                         // to avoid a logic error reading the piece to be moved
