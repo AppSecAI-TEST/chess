@@ -129,9 +129,26 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 // Pawns can only move one up or down
+                // Evaluate both statements: changeRow == rowChangeValue (either 1 or -1)
+                // because a Pawn can move 1 on a regular turn,
+                // And changeRow == firstMoveRowChange (2 or -2) can move 2 on a first
+                // move but does not HAVE to and can also move 1 instead.
                 if((changeRow == rowChangeValue || changeRow == firstMoveRowChange)
                         && changeCol == 0){
-                    validMove = true;
+                    // Check for obstacles
+                    if (Math.abs(firstMoveRowChange) == 2){
+                        // If the pawn is moving 2, check the space between for
+                        // any obstacles.
+                        checkForNullPiece = mBoard.getPieceAtCoordinates(
+                                // Find the test row at old row +- 1
+                                oldRow + (firstMoveRowChange / 2), newCol);
+                        if (checkForNullPiece != null){
+                            validMove = false;
+                            return validMove;
+                        } else {
+                            validMove = true;
+                        }
+                    }
                 }
                 break;
             case KNIGHT:
