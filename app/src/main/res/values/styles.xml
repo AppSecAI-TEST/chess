@@ -2,14 +2,23 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <!--Label style for player labels-->
     <style name="playerLabel">
         <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/accent_dark</item>
+        <item name="android:textSize">@dimen/label_size</item>
+    </style>
+
+    <!--Label style for current active turn-->
+    <style name="playerLabelActiveTurn">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textSize">@dimen/label_size</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
 </resources>

@@ -1,11 +1,12 @@
 package net.alexblass.chess;
 
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import net.alexblass.chess.models.GameBoard;
@@ -13,6 +14,7 @@ import net.alexblass.chess.models.Piece;
 import net.alexblass.chess.utilities.TileAdapter;
 
 import static net.alexblass.chess.models.Piece.BISHOP;
+import static net.alexblass.chess.models.Piece.BLACK;
 import static net.alexblass.chess.models.Piece.KING;
 import static net.alexblass.chess.models.Piece.KNIGHT;
 import static net.alexblass.chess.models.Piece.PAWN;
@@ -25,11 +27,20 @@ public class MainActivity extends AppCompatActivity {
     // A GridView to display each game tile ImageView
     private GridView mGridView;
 
+    // Textviews for the player labels
+    private TextView mPlayer1Lbl;
+    private TextView mPlayer2Lbl;
+
     // An adapter to display images on the board correctly
     private TileAdapter mAdapter;
 
     // A board for a new chess game
     private GameBoard mBoard;
+
+    // A boolean to keep track of turns
+    // When true, it's player 1 (white)'s turn
+    // When false, it's player 2 (black)'s turn
+    private boolean mPlayer1Turn;
 
     // Keep track of where the user has clicked
     // Is true by default until the user clicks the piece they want to move
@@ -37,20 +48,28 @@ public class MainActivity extends AppCompatActivity {
     // Upon successful move, it goes back to true
     private boolean mFirstClick = true;
 
+    // The piece the user clicks on
     private Piece mPieceToMove;
-    int mFirstClickRow;
-    int mFirstClickCol;
-    int mSecondClickRow;
-    int mSecondClickCol;
+
+    // The coordinates of the first and second clicks
+    private int mFirstClickRow;
+    private int mFirstClickCol;
+    private int mSecondClickRow;
+    private int mSecondClickCol;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mPlayer1Lbl = (TextView) findViewById(R.id.player1_lbl);
+        mPlayer2Lbl = (TextView) findViewById(R.id.player2_lbl);
+
         mGridView = (GridView) findViewById(R.id.boardGridView);
 
         mBoard = new GameBoard();
+        mPlayer1Turn = true;
+        setLabelStyle(mPlayer1Turn);
 
         mAdapter = new TileAdapter(this, mBoard.getGameBoardTiles());
         mGridView.setAdapter(mAdapter);
@@ -63,16 +82,23 @@ public class MainActivity extends AppCompatActivity {
                 // If it's the first click, verify there's a valid piece on the square
                 if (mFirstClick){
                     if (piecesPlacement[position] != null){
+
                         //Get the coordinate values for the item selected
                         mPieceToMove = piecesPlacement[position];
-                        mFirstClickRow = mPieceToMove.getRowX();
-                        mFirstClickCol = mPieceToMove.getColY();
 
-                        view.setBackgroundColor(
-                                getApplicationContext().getResources().getColor(R.color.selected));
+                        // if it's Player 1 (white)'s turn, verify white piece was clicked
+                        if ((mPlayer1Turn == true && mPieceToMove.getColorCode() == WHITE) ||
+                                // if it's Player 2 (black)'s turn, verify a black piece was clicked
+                                mPlayer1Turn == false && mPieceToMove.getColorCode() == BLACK) {
+                            mFirstClickRow = mPieceToMove.getRowX();
+                            mFirstClickCol = mPieceToMove.getColY();
 
-                        // First click successfully ended
-                        mFirstClick = false;
+                            view.setBackgroundColor(
+                                    getApplicationContext().getResources().getColor(R.color.selected));
+
+                            // First click successfully ended
+                            mFirstClick = false;
+                        }
                     }
                 } else { // This is not the first click
                     mSecondClickRow = position / 8;
@@ -92,6 +118,14 @@ public class MainActivity extends AppCompatActivity {
                             mAdapter.setGameBoard(mBoard.getGameBoardTiles());
 
                             mFirstClick = true;
+
+                            // Close turn by setting the next player's turn
+                            if (mPlayer1Turn == true){
+                                mPlayer1Turn = false;
+                            } else {
+                                mPlayer1Turn = true;
+                            }
+                            setLabelStyle(mPlayer1Turn);
                         } else {
                             Toast.makeText(getApplicationContext(),
                                     getString(R.string.invalid_move), Toast.LENGTH_SHORT).show();
@@ -106,7 +140,6 @@ public class MainActivity extends AppCompatActivity {
     private boolean checkMoveValidity(Piece piece, int oldRow, int oldCol, int newRow, int newCol){
         // Since the user must click on an existing tile with pre-determined coordinates,
         // We do not need to check for out of bounds errors
-        // TODO: Check obstructions
         // TODO: Check for king in check
         // TODO: Capture piece functionality
         boolean validMove = false;
@@ -445,5 +478,26 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         return validMove;
+    }
+
+    // Change player labels to indicate turns
+    private void setLabelStyle(boolean player1Turn){
+        if (player1Turn == true){
+            if (Build.VERSION.SDK_INT < 23) {
+                mPlayer1Lbl.setTextAppearance(this, R.style.playerLabelActiveTurn);
+                mPlayer2Lbl.setTextAppearance(this, R.style.playerLabel);
+            } else {
+                mPlayer1Lbl.setTextAppearance(R.style.playerLabelActiveTurn);
+                mPlayer2Lbl.setTextAppearance(R.style.playerLabel);
+            }
+        } else {
+            if (Build.VERSION.SDK_INT < 23) {
+                mPlayer1Lbl.setTextAppearance(this, R.style.playerLabel);
+                mPlayer2Lbl.setTextAppearance(this, R.style.playerLabelActiveTurn);
+            } else {
+                mPlayer1Lbl.setTextAppearance(R.style.playerLabel);
+                mPlayer2Lbl.setTextAppearance(R.style.playerLabelActiveTurn);
+            }
+        }
     }
 }
