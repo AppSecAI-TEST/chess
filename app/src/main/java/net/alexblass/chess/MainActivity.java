@@ -152,10 +152,9 @@ public class MainActivity extends AppCompatActivity {
                         if (checkForNullPiece != null){
                             validMove = false;
                             return validMove;
-                        } else {
-                            validMove = true;
                         }
                     }
+                    validMove = true;
                 }
                 break;
             case KNIGHT:
