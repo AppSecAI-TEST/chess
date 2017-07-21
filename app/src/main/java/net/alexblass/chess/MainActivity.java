@@ -74,22 +74,28 @@ public class MainActivity extends AppCompatActivity {
                         // First click successfully ended
                         mFirstClick = false;
                     }
-                } else { // If this is not the first click, the next square must be empty
+                } else { // This is not the first click
                     mSecondClickRow = position / 8;
                     mSecondClickCol = position % 8;
 
-                    boolean validMove = checkMoveValidity(mPieceToMove, mFirstClickRow, mFirstClickCol,
-                            mSecondClickRow, mSecondClickCol);
-
-                    if (piecesPlacement[position] == null && validMove){
-                        mBoard.movePieceTo(mPieceToMove, mSecondClickRow, mSecondClickCol);
-
+                    // If we click the same tile, deselect the piece
+                    if (mSecondClickRow == mFirstClickRow && mSecondClickCol == mFirstClickCol){
                         mAdapter.setGameBoard(mBoard.getGameBoardTiles());
-
                         mFirstClick = true;
                     } else {
-                        Toast.makeText(getApplicationContext(),
-                                getString(R.string.invalid_move), Toast.LENGTH_SHORT).show();
+                        boolean validMove = checkMoveValidity(mPieceToMove, mFirstClickRow, mFirstClickCol,
+                                mSecondClickRow, mSecondClickCol);
+
+                        if (piecesPlacement[position] == null && validMove) {
+                            mBoard.movePieceTo(mPieceToMove, mSecondClickRow, mSecondClickCol);
+
+                            mAdapter.setGameBoard(mBoard.getGameBoardTiles());
+
+                            mFirstClick = true;
+                        } else {
+                            Toast.makeText(getApplicationContext(),
+                                    getString(R.string.invalid_move), Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
             }
