@@ -238,68 +238,100 @@ public class MainActivity extends AppCompatActivity {
                         // reading the piece to be moved as an obstacle.
                         r = oldRow + 1;
                         c = oldCol + 1;
-                        while (r <= newRow) {
-                            // Check for obstructions
+                        while (r <= newRow - 1) {
+                            // Check for obstructions between the start position and the target
+                            // position
                             checkForNullPiece = mBoard.getPieceAtCoordinates(r, c);
                             if (checkForNullPiece != null){
                                 validMove = false;
                                 return validMove;
-                            } else {
-                                validMove = true;
                             }
                             r++;
                             c++;
+                        }
+                        // Check the target position for any pieces
+                        checkForNullPiece = mBoard.getPieceAtCoordinates(newRow, newCol);
+                        if (checkForNullPiece == null){
+                            // If it's also empty, it's a valid move
+                            validMove = true;
+                        } else {
+                            // If it's an enemy piece, it's also a valid move
+                            validMove = canCapturePiece(piece, checkForNullPiece);
                         }
                     } else if (oldRow > newRow && oldCol < newCol){ // Moving up and right
                         // Offset tile by one to avoid a logic error
                         // reading the piece to be moved as an obstacle.
                         r = oldRow - 1;
                         c = oldCol + 1;
-                        while (r >= newRow) {
-                            // Check for obstructions
+                        while (r >= newRow + 1) {
+                            // Check for obstructions between the start position and the target
+                            // position
                             checkForNullPiece = mBoard.getPieceAtCoordinates(r, c);
                             if (checkForNullPiece != null){
                                 validMove = false;
                                 return validMove;
-                            } else {
-                                validMove = true;
                             }
                             r--;
                             c++;
+                        }
+                        // Check the target position for any pieces
+                        checkForNullPiece = mBoard.getPieceAtCoordinates(newRow, newCol);
+                        if (checkForNullPiece == null){
+                            // If it's also empty, it's a valid move
+                            validMove = true;
+                        } else {
+                            // If it's an enemy piece, it's also a valid move
+                            validMove = canCapturePiece(piece, checkForNullPiece);
                         }
                     } else if (oldRow > newRow && oldCol > newCol){ // Moving up and left
                         // Offset tile by one to avoid a logic error
                         // reading the piece to be moved as an obstacle.
                         r = oldRow - 1;
                         c = oldCol - 1;
-                        while (r >= newRow) {
-                            // Check for obstructions
+                        while (r >= newRow + 1) {
+                            // Check for obstructions between the start position and the target
+                            // position
                             checkForNullPiece = mBoard.getPieceAtCoordinates(r, c);
                             if (checkForNullPiece != null){
                                 validMove = false;
                                 return validMove;
-                            } else {
-                                validMove = true;
                             }
                             r--;
                             c--;
+                        }
+                        // Check the target position for any pieces
+                        checkForNullPiece = mBoard.getPieceAtCoordinates(newRow, newCol);
+                        if (checkForNullPiece == null){
+                            // If it's also empty, it's a valid move
+                            validMove = true;
+                        } else {
+                            // If it's an enemy piece, it's also a valid move
+                            validMove = canCapturePiece(piece, checkForNullPiece);
                         }
                     } else if (oldRow < newRow && oldCol > newCol){ // Moving down and left
                         // Offset tile by one to avoid a logic error
                         // reading the piece to be moved as an obstacle.
                         r = oldRow + 1;
                         c = oldCol - 1;
-                        while (r <= newRow) {
-                            // Check for obstructions
+                        while (r <= newRow - 1) {
+                            // Check for obstructions between the start position and the target
+                            // position
                             checkForNullPiece = mBoard.getPieceAtCoordinates(r, c);
                             if (checkForNullPiece != null){
                                 validMove = false;
                                 return validMove;
-                            } else {
-                                validMove = true;
                             }
                             r++;
                             c--;
+                        }
+                        // Check the target position for any pieces
+                        checkForNullPiece = mBoard.getPieceAtCoordinates(newRow, newCol);
+                        if (checkForNullPiece == null){
+                            // If it's also empty, it's a valid move
+                            validMove = true;
+                        } else {
+                            // If it's an enemy piece, it's also a valid move
+                            validMove = canCapturePiece(piece, checkForNullPiece);
                         }
                     }
                 }
