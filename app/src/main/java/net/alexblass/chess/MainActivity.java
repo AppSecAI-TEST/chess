@@ -3,7 +3,6 @@ package net.alexblass.chess;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -28,9 +27,11 @@ public class MainActivity extends AppCompatActivity {
     // A GridView to display each game tile ImageView
     private GridView mGridView;
 
-    // Textviews for the player labels
+    // Textviews for the player labels and score
     private TextView mPlayer1Lbl;
     private TextView mPlayer2Lbl;
+    private TextView mPlayer1ScoreTv;
+    private TextView mPlayer2ScoreTv;
 
     // An adapter to display images on the board correctly
     private TileAdapter mAdapter;
@@ -65,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
     // Whether or not the current player can capture a piece on the tile selected
     boolean mCanCapture;
 
+    // TODO: Implement on saved instance state for rotation and background state 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,6 +75,11 @@ public class MainActivity extends AppCompatActivity {
 
         mPlayer1Lbl = (TextView) findViewById(R.id.player1_lbl);
         mPlayer2Lbl = (TextView) findViewById(R.id.player2_lbl);
+        mPlayer1ScoreTv = (TextView) findViewById(R.id.player1_score);
+        mPlayer2ScoreTv = (TextView) findViewById(R.id.player2_score);
+
+        mPlayer1ScoreTv.setText(Integer.toString(mPlayer1Score));
+        mPlayer2ScoreTv.setText(Integer.toString(mPlayer2Score));
 
         mGridView = (GridView) findViewById(R.id.boardGridView);
 
@@ -162,8 +170,6 @@ public class MainActivity extends AppCompatActivity {
     private boolean checkMoveValidity(Piece piece, int oldRow, int oldCol, int newRow, int newCol){
         // Since the user must click on an existing tile with pre-determined coordinates,
         // We do not need to check for out of bounds errors
-        // TODO: Check for king in check
-        // TODO: Capture piece functionality
         boolean validMove = false;
 
         int changeRow = newRow - oldRow;
@@ -216,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
                         && mBoard.getPieceAtCoordinates(newRow, newCol) != null) {
                     validMove = canCapturePiece(piece, mBoard.getPieceAtCoordinates(newRow, newCol));
                 }
-                // TODO: Pawns can capture en passant
+                // TODO: Pawns can capture en passant special move
                 // Pawns can also capture en passant--when an enemy pawn moves 2
                 // forward instead of 1, but moving 1 forward would have allowed
                 // the other player to capture.
@@ -628,6 +634,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
             case KING:
+                // TODO: Check for king in check
+                // TODO: Castling special move with rook and king
                 // Kings can move to any adjacent tile
                 // Kings can move either one up or down and one or none left or right
                 if((Math.abs(changeRow) == 1 && Math.abs(changeCol) <= 1)
@@ -659,6 +667,9 @@ public class MainActivity extends AppCompatActivity {
         } else {
             mPlayer1Score += pieceCaptured.getPointsValue();
         }
+
+        mPlayer1ScoreTv.setText(Integer.toString(mPlayer1Score));
+        mPlayer2ScoreTv.setText(Integer.toString(mPlayer2Score));
     }
 
     // Change player labels to indicate turns

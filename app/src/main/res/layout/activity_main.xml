@@ -17,6 +17,15 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/player2_score"
+        style="@style/playerLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBaseline_toBaselineOf="@+id/player2_lbl"
+        android:layout_marginRight="@dimen/app_margin"
+        app:layout_constraintRight_toRightOf="parent" />
+
     <GridView
         android:id="@+id/boardGridView"
         android:layout_width="@dimen/board_size"
@@ -45,4 +54,13 @@
         android:text="@string/player1_lbl"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent" />
+
+    <TextView
+        android:id="@+id/player1_score"
+        style="@style/playerLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/app_margin"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBaseline_toBaselineOf="@+id/player1_lbl" />
 </android.support.constraint.ConstraintLayout>
