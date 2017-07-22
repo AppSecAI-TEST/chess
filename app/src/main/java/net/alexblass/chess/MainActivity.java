@@ -57,6 +57,9 @@ public class MainActivity extends AppCompatActivity {
     private int mSecondClickRow;
     private int mSecondClickCol;
 
+    // Whether or not the current player can capture a piece on the tile selected
+    boolean mCanCapture;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,6 +85,8 @@ public class MainActivity extends AppCompatActivity {
                 // If it's the first click, verify there's a valid piece on the square
                 if (mFirstClick){
                     if (piecesPlacement[position] != null){
+                        // Initialize to false by default before the second click
+                        mCanCapture = false;
 
                         //Get the coordinate values for the item selected
                         mPieceToMove = piecesPlacement[position];
@@ -112,7 +117,16 @@ public class MainActivity extends AppCompatActivity {
                         boolean validMove = checkMoveValidity(mPieceToMove, mFirstClickRow, mFirstClickCol,
                                 mSecondClickRow, mSecondClickCol);
 
-                        if (piecesPlacement[position] == null && validMove) {
+                        // If the target tile is not empty, check if
+                        // we can capture the piece on it
+                        if (piecesPlacement[position] != null) {
+                            mCanCapture = canCapturePiece(mPieceToMove, piecesPlacement[position]);
+                        }
+
+                        // If the second click move is valid for the piece type
+                        // and if the second click tile is empty or has a piece
+                        // we can capture, proceed.
+                        if (validMove && (piecesPlacement[position] == null || mCanCapture)) {
                             mBoard.movePieceTo(mPieceToMove, mSecondClickRow, mSecondClickCol);
 
                             mAdapter.setGameBoard(mBoard.getGameBoardTiles());
@@ -154,6 +168,7 @@ public class MainActivity extends AppCompatActivity {
         switch (piece.getName()){
             case PAWN:
                 // TODO: Pawns can capture diagonal pieces
+                // TODO: Fix - pawns should not capture pieces in front
                 int rowChangeValue;
                 if(piece.getColorCode() == WHITE){
                     // White pieces can only move up on the board (towards row 0)
@@ -478,6 +493,14 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         return validMove;
+    }
+
+    // Check if piece can be captured
+    private boolean canCapturePiece(Piece selectedPiece, Piece secondPiece){
+        if (selectedPiece.getColorCode() != secondPiece.getColorCode()){
+            return true;
+        }
+        return false;
     }
 
     // Change player labels to indicate turns

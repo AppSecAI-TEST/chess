@@ -5,8 +5,8 @@
 
     <dimen name="zero">0dp</dimen>
 
-    <dimen name="tile_size">42dp</dimen>
-    <dimen name="board_size">336dp</dimen>
+    <dimen name="tile_size">48dp</dimen>
+    <dimen name="board_size">384dp</dimen>
 
     <dimen name="label_size">16sp</dimen>
 </resources>
