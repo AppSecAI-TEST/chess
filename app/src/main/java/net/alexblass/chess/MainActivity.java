@@ -43,6 +43,10 @@ public class MainActivity extends AppCompatActivity {
     // When false, it's player 2 (black)'s turn
     private boolean mPlayer1Turn;
 
+    // Keep track of the players' scores
+    private int mPlayer1Score = 0;
+    private int mPlayer2Score = 0;
+
     // Keep track of where the user has clicked
     // Is true by default until the user clicks the piece they want to move
     // Then is false until the user selects a valid square to move to
@@ -128,6 +132,9 @@ public class MainActivity extends AppCompatActivity {
                         // and if the second click tile is empty or has a piece
                         // we can capture, proceed.
                         if (validMove && (piecesPlacement[position] == null || mCanCapture)) {
+                            if (mCanCapture) {
+                                capturePiece(piecesPlacement[position]);
+                            }
                             mBoard.movePieceTo(mPieceToMove, mSecondClickRow, mSecondClickCol);
 
                             mAdapter.setGameBoard(mBoard.getGameBoardTiles());
@@ -168,7 +175,6 @@ public class MainActivity extends AppCompatActivity {
         // Check position validity
         switch (piece.getName()){
             case PAWN:
-                // TODO: Pawns can capture diagonal pieces
                 int rowChangeValue;
                 if(piece.getColorCode() == WHITE){
                     // White pieces can only move up on the board (towards row 0)
@@ -183,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
                     firstMoveRowChange = rowChangeValue * 2;
                 }
 
-                // Pawns can only move one up or down
+                // Pawns can only move one up or down in non-capture moves
                 // Evaluate both statements: changeRow == rowChangeValue (either 1 or -1)
                 // because a Pawn can move 1 on a regular turn,
                 // And changeRow == firstMoveRowChange (2 or -2) can move 2 on a first
@@ -204,7 +210,17 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     validMove = true;
+
+                // Pawns can capture pieces one row ahead and one column over.
+                } else if (changeRow == rowChangeValue && Math.abs(changeCol) == 1
+                        && mBoard.getPieceAtCoordinates(newRow, newCol) != null) {
+                    validMove = canCapturePiece(piece, mBoard.getPieceAtCoordinates(newRow, newCol));
                 }
+                // TODO: Pawns can capture en passant
+                // Pawns can also capture en passant--when an enemy pawn moves 2
+                // forward instead of 1, but moving 1 forward would have allowed
+                // the other player to capture.
+
                 break;
             case KNIGHT:
                 // Knights can move in an L shape in any direction
@@ -502,6 +518,19 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return false;
+    }
+
+    // Clean up to remove piece from the board and update the scores
+    private void capturePiece(Piece pieceCaptured){
+        // Piece is no longer on the board
+        pieceCaptured.setIsActive(false);
+        pieceCaptured.setCoordinates(-1, -1);
+
+        if (pieceCaptured.getColorCode() == WHITE){
+            mPlayer2Score += pieceCaptured.getPointsValue();
+        } else {
+            mPlayer1Score += pieceCaptured.getPointsValue();
+        }
     }
 
     // Change player labels to indicate turns

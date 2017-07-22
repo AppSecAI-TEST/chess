@@ -133,7 +133,11 @@ public class Piece {
         this.mRowX = x;
         this.mColY = y;
 
-        mListPostion = (x * BOARD_LENGTH) + y;
+        if (x == -1 || y == -1){
+            mListPostion = -1;
+        } else {
+            mListPostion = (x * BOARD_LENGTH) + y;
+        }
     }
 
     public int getRowX(){
