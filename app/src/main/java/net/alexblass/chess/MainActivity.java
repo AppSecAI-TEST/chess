@@ -3,6 +3,7 @@ package net.alexblass.chess;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -168,7 +169,6 @@ public class MainActivity extends AppCompatActivity {
         switch (piece.getName()){
             case PAWN:
                 // TODO: Pawns can capture diagonal pieces
-                // TODO: Fix - pawns should not capture pieces in front
                 int rowChangeValue;
                 if(piece.getColorCode() == WHITE){
                     // White pieces can only move up on the board (towards row 0)
@@ -191,12 +191,13 @@ public class MainActivity extends AppCompatActivity {
                 if((changeRow == rowChangeValue || changeRow == firstMoveRowChange)
                         && changeCol == 0){
                     // Check for obstacles
-                    if (Math.abs(firstMoveRowChange) == 2){
-                        // If the pawn is moving 2, check the space between for
-                        // any obstacles.
-                        checkForNullPiece = mBoard.getPieceAtCoordinates(
-                                // Find the test row at old row +- 1
-                                oldRow + (firstMoveRowChange / 2), newCol);
+                    int i = oldRow;
+                    // Check if the target tile or the tile between (if 2 space move) is
+                    // occupied by another piece. Pawns cannot capture straight on.
+                    while (i != newRow){
+                        // Add or subtract 1 to traverse rows
+                        i += rowChangeValue;
+                        checkForNullPiece = mBoard.getPieceAtCoordinates(i, newCol);
                         if (checkForNullPiece != null){
                             validMove = false;
                             return validMove;
