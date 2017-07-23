@@ -4,4 +4,9 @@
     <string name="player2_lbl">Player 2</string>
 
     <string name="invalid_move">Invalid move</string>
+    <string name="promo_dialog_title">Choose your new piece:</string>
+    <string name="queen">Queen</string>
+    <string name="rook">Rook</string>
+    <string name="bishop">Bishop</string>
+    <string name="knight">Knight</string>
 </resources>

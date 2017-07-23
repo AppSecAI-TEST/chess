@@ -151,4 +151,9 @@ public class GameBoard {
         piece.setCoordinates(x, y);
         piece.setHasMovedFromStart(true);
     }
+
+    // Used for when a pawn is promoted
+    public void setPieceAt(Piece piece, int index){
+        mGameBoardTiles[index] = piece;
+    }
 }

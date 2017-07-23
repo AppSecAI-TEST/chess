@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="pawn_promotions">
+        <item>@string/queen</item>
+        <item>@string/bishop</item>
+        <item>@string/rook</item>
+        <item>@string/knight</item>
+    </array>
+</resources>

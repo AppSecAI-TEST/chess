@@ -94,6 +94,25 @@ public class Piece {
     // Used for when a pawn reaches the other player's home row and can be changed to another piece
     public void setName(String name){
         this.mName = name;
+
+        // The Piece's points value
+        switch(name){
+            case "pawn":
+                mPointsValue = 1;
+                break;
+            case "knight":
+            case "bishop":
+                mPointsValue = 3;
+                break;
+            case "rook":
+                mPointsValue = 5;
+                break;
+            case "queen":
+                mPointsValue = 9;
+                break;
+            default:
+                mPointsValue = 0;
+        }
     }
 
     public boolean hasMovedFromStart() {

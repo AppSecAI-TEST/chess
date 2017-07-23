@@ -1,6 +1,8 @@
 package net.alexblass.chess;
 
+import android.content.DialogInterface;
 import android.os.Build;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -66,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
     // Whether or not the current player can capture a piece on the tile selected
     boolean mCanCapture;
 
-    // TODO: Implement on saved instance state for rotation and background state 
+    // TODO: Implement on saved instance state for rotation and background state
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,8 +145,8 @@ public class MainActivity extends AppCompatActivity {
                             if (mCanCapture) {
                                 capturePiece(piecesPlacement[position]);
                             }
-                            mBoard.movePieceTo(mPieceToMove, mSecondClickRow, mSecondClickCol);
 
+                            mBoard.movePieceTo(mPieceToMove, mSecondClickRow, mSecondClickCol);
                             mAdapter.setGameBoard(mBoard.getGameBoardTiles());
 
                             mFirstClick = true;
@@ -227,6 +229,12 @@ public class MainActivity extends AppCompatActivity {
                 // forward instead of 1, but moving 1 forward would have allowed
                 // the other player to capture.
 
+                // Trigger change piece type when a pawn reaches enemy home row
+                if (validMove &&
+                        (piece.getColorCode() == WHITE && newRow == 0) ||
+                        (piece.getColorCode() == BLACK && newRow == 7)){
+                    mPieceToMove = pawnPromotion(mPieceToMove);
+                }
                 break;
             case KNIGHT:
                 // Knights can move in an L shape in any direction
@@ -670,6 +678,56 @@ public class MainActivity extends AppCompatActivity {
 
         mPlayer1ScoreTv.setText(Integer.toString(mPlayer1Score));
         mPlayer2ScoreTv.setText(Integer.toString(mPlayer2Score));
+    }
+
+    // Change a pawn when it reaches the enemy's home row
+    private Piece pawnPromotion(final Piece oldPawn){
+        // Display an alert dialog so the user can select their new piece type
+        AlertDialog.Builder promotionDialog = new AlertDialog.Builder(this);
+        promotionDialog.setTitle(R.string.promo_dialog_title)
+                .setItems(R.array.pawn_promotions, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which){
+                            case 0:
+                                oldPawn.setName(QUEEN);
+                                if (oldPawn.getColorCode() == WHITE){
+                                    oldPawn.setImageResourceId(R.drawable.queen_w);
+                                } else {
+                                    oldPawn.setImageResourceId(R.drawable.queen_b);
+                                }
+                                break;
+                            case 1:
+                                oldPawn.setName(BISHOP);
+                                if (oldPawn.getColorCode() == WHITE){
+                                    oldPawn.setImageResourceId(R.drawable.bishop_w);
+                                } else {
+                                    oldPawn.setImageResourceId(R.drawable.bishop_b);
+                                }
+                                break;
+                            case 2:
+                                oldPawn.setName(ROOK);
+                                if (oldPawn.getColorCode() == WHITE){
+                                    oldPawn.setImageResourceId(R.drawable.rook_w);
+                                } else {
+                                    oldPawn.setImageResourceId(R.drawable.rook_b);
+                                }
+                                break;
+                            case 3:
+                                oldPawn.setName(KNIGHT);
+                                if (oldPawn.getColorCode() == WHITE){
+                                    oldPawn.setImageResourceId(R.drawable.knight_w);
+                                } else {
+                                    oldPawn.setImageResourceId(R.drawable.knight_b);
+                                }
+                                break;
+                        }
+                        mAdapter.setGameBoard(mBoard.getGameBoardTiles());
+                    }
+                });
+        promotionDialog.create().show();
+
+        return oldPawn;
     }
 
     // Change player labels to indicate turns
