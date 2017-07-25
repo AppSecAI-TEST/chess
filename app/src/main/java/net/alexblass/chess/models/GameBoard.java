@@ -33,24 +33,27 @@ public class GameBoard {
 
     // Pieces for white and black players
     private Piece mQueenW, mKingW, mRookW1, mRookW2, mBishopW1, mBishopW2,
-            mKnightW1, mKnightW2, mPawnW1, mPawnW2, mPawnW3, mPawnW4, mPawnW5, mPawnW6,
+            mKnightW1, mKnightW2;
+    private PawnPiece mPawnW1, mPawnW2, mPawnW3, mPawnW4, mPawnW5, mPawnW6,
             mPawnW7, mPawnW8;
+
     private Piece mQueenB, mKingB, mRookB1, mRookB2, mBishopB1, mBishopB2,
-            mKnightB1, mKnightB2, mPawnB1, mPawnB2, mPawnB3, mPawnB4, mPawnB5, mPawnB6,
+            mKnightB1, mKnightB2;
+    private PawnPiece mPawnB1, mPawnB2, mPawnB3, mPawnB4, mPawnB5, mPawnB6,
             mPawnB7, mPawnB8;
 
     // Create a new gameboard for a new game of chess
     public GameBoard(){
         // Initialize the chess pieces
         // WHITE:
-        mPawnW1 = new Piece(Piece.PAWN, Piece.WHITE, 6, 0, R.drawable.pawn_w);
-        mPawnW2 = new Piece(Piece.PAWN, Piece.WHITE, 6, 1, R.drawable.pawn_w);
-        mPawnW3 = new Piece(Piece.PAWN, Piece.WHITE, 6, 2, R.drawable.pawn_w);
-        mPawnW4 = new Piece(Piece.PAWN, Piece.WHITE, 6, 3, R.drawable.pawn_w);
-        mPawnW5 = new Piece(Piece.PAWN, Piece.WHITE, 6, 4, R.drawable.pawn_w);
-        mPawnW6 = new Piece(Piece.PAWN, Piece.WHITE, 6, 5, R.drawable.pawn_w);
-        mPawnW7 = new Piece(Piece.PAWN, Piece.WHITE, 6, 6, R.drawable.pawn_w);
-        mPawnW8 = new Piece(Piece.PAWN, Piece.WHITE, 6, 7, R.drawable.pawn_w);
+        mPawnW1 = new PawnPiece(Piece.PAWN, Piece.WHITE, 6, 0, R.drawable.pawn_w);
+        mPawnW2 = new PawnPiece(Piece.PAWN, Piece.WHITE, 6, 1, R.drawable.pawn_w);
+        mPawnW3 = new PawnPiece(Piece.PAWN, Piece.WHITE, 6, 2, R.drawable.pawn_w);
+        mPawnW4 = new PawnPiece(Piece.PAWN, Piece.WHITE, 6, 3, R.drawable.pawn_w);
+        mPawnW5 = new PawnPiece(Piece.PAWN, Piece.WHITE, 6, 4, R.drawable.pawn_w);
+        mPawnW6 = new PawnPiece(Piece.PAWN, Piece.WHITE, 6, 5, R.drawable.pawn_w);
+        mPawnW7 = new PawnPiece(Piece.PAWN, Piece.WHITE, 6, 6, R.drawable.pawn_w);
+        mPawnW8 = new PawnPiece(Piece.PAWN, Piece.WHITE, 6, 7, R.drawable.pawn_w);
 
         mRookW1 = new Piece(Piece.ROOK, Piece.WHITE, 7, 0, R.drawable.rook_w);
         mKnightW1 = new Piece(Piece.KNIGHT, Piece.WHITE, 7, 1, R.drawable.knight_w);
@@ -71,14 +74,14 @@ public class GameBoard {
         mKnightB2 = new Piece(Piece.KNIGHT, Piece.BLACK, 0, 6, R.drawable.knight_b);
         mRookB2 = new Piece(Piece.ROOK, Piece.BLACK, 0, 7, R.drawable.rook_b);
 
-        mPawnB1 = new Piece(Piece.PAWN, Piece.BLACK, 1, 0, R.drawable.pawn_b);
-        mPawnB2 = new Piece(Piece.PAWN, Piece.BLACK, 1, 1, R.drawable.pawn_b);
-        mPawnB3 = new Piece(Piece.PAWN, Piece.BLACK, 1, 2, R.drawable.pawn_b);
-        mPawnB4 = new Piece(Piece.PAWN, Piece.BLACK, 1, 3, R.drawable.pawn_b);
-        mPawnB5 = new Piece(Piece.PAWN, Piece.BLACK, 1, 4, R.drawable.pawn_b);
-        mPawnB6 = new Piece(Piece.PAWN, Piece.BLACK, 1, 5, R.drawable.pawn_b);
-        mPawnB7 = new Piece(Piece.PAWN, Piece.BLACK, 1, 6, R.drawable.pawn_b);
-        mPawnB8 = new Piece(Piece.PAWN, Piece.BLACK, 1, 7, R.drawable.pawn_b);
+        mPawnB1 = new PawnPiece(Piece.PAWN, Piece.BLACK, 1, 0, R.drawable.pawn_b);
+        mPawnB2 = new PawnPiece(Piece.PAWN, Piece.BLACK, 1, 1, R.drawable.pawn_b);
+        mPawnB3 = new PawnPiece(Piece.PAWN, Piece.BLACK, 1, 2, R.drawable.pawn_b);
+        mPawnB4 = new PawnPiece(Piece.PAWN, Piece.BLACK, 1, 3, R.drawable.pawn_b);
+        mPawnB5 = new PawnPiece(Piece.PAWN, Piece.BLACK, 1, 4, R.drawable.pawn_b);
+        mPawnB6 = new PawnPiece(Piece.PAWN, Piece.BLACK, 1, 5, R.drawable.pawn_b);
+        mPawnB7 = new PawnPiece(Piece.PAWN, Piece.BLACK, 1, 6, R.drawable.pawn_b);
+        mPawnB8 = new PawnPiece(Piece.PAWN, Piece.BLACK, 1, 7, R.drawable.pawn_b);
 
         // Place pieces in the Array so we can pass
         // them to our adapter to display their images

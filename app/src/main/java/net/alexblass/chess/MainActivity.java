@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import net.alexblass.chess.models.GameBoard;
+import net.alexblass.chess.models.PawnPiece;
 import net.alexblass.chess.models.Piece;
 import net.alexblass.chess.utilities.TileAdapter;
 
@@ -69,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
     boolean mCanCapture;
 
     // TODO: Implement on saved instance state for rotation and background state
+    // TODO: Optimize layout for horizontal orientation
+    // TODO: replace placeholder graphics
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -192,17 +195,25 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 // Pawns can move 2 squares on the first move
-                int firstMoveRowChange = rowChangeValue;
+                int firstMoveRowChangeValue = rowChangeValue;
                 if(piece.hasMovedFromStart() == false){
-                    firstMoveRowChange = rowChangeValue * 2;
+                    firstMoveRowChangeValue = rowChangeValue * 2;
+                }
+
+                // En passant is only valid when the pawn has used it's 2 space move
+                if (changeRow == firstMoveRowChangeValue){
+                    ((PawnPiece) piece).setValidEnPassant(true);
+                } else {
+                    ((PawnPiece) piece).setValidEnPassant(false);
                 }
 
                 // Pawns can only move one up or down in non-capture moves
                 // Evaluate both statements: changeRow == rowChangeValue (either 1 or -1)
                 // because a Pawn can move 1 on a regular turn,
-                // And changeRow == firstMoveRowChange (2 or -2) can move 2 on a first
+                // And changeRow == firstMoveRowChangeValue (2 or -2) can move 2 on a first
                 // move but does not HAVE to and can also move 1 instead.
-                if((changeRow == rowChangeValue || changeRow == firstMoveRowChange)
+                // ChangeCol == 0 means there will be no capture this turn.
+                if((changeRow == rowChangeValue || changeRow == firstMoveRowChangeValue)
                         && changeCol == 0){
                     // Check for obstacles
                     int i = oldRow;
@@ -222,13 +233,19 @@ public class MainActivity extends AppCompatActivity {
                 // Pawns can capture pieces one row ahead and one column over.
                 } else if (changeRow == rowChangeValue && Math.abs(changeCol) == 1
                         && mBoard.getPieceAtCoordinates(newRow, newCol) != null) {
+
+                    // Regular capture
                     validMove = canCapturePiece(piece, mBoard.getPieceAtCoordinates(newRow, newCol));
-                }
-                // TODO: Pawns can capture en passant special move
-                // Pawns can also capture en passant--when an enemy pawn moves 2
+
+                // Pawns can also capture pieces En Passant--when an enemy pawn moves 2
                 // forward instead of 1, but moving 1 forward would have allowed
                 // the other player to capture.
-
+                } else if (changeRow == rowChangeValue && Math.abs(changeCol) == 1
+                        && mBoard.getPieceAtCoordinates(newRow, newCol) == null
+                        && mBoard.getPieceAtCoordinates(oldRow, newCol) != null) {
+                    // En Passant capture
+                    validMove = enPassant(piece, oldRow, newCol);
+                }
                 // Trigger change piece type when a pawn reaches enemy home row
                 if (validMove &&
                         (piece.getColorCode() == WHITE && newRow == 0) ||
@@ -728,6 +745,39 @@ public class MainActivity extends AppCompatActivity {
         promotionDialog.create().show();
 
         return oldPawn;
+    }
+
+    // Check for and complete an en passant move
+    private boolean enPassant(Piece piece, int oldRow, int newCol){
+        // These are the rows in which you can find a pawn that
+        // has made it's initial 2 space move
+        int enemyRowPosition;
+        if (piece.getColorCode() == WHITE){
+            // if my selected piece is white, the black enemy's row will be 3
+            enemyRowPosition = 3;
+        } else {
+            // if my selected piece is black, the white enemy's row will be 4
+            enemyRowPosition = 4;
+        }
+
+        // Already verified that this piece is not null before calling this method
+        PawnPiece enemyPawn = (PawnPiece) mBoard.getPieceAtCoordinates(enemyRowPosition, newCol);
+
+        // Verify the piece is a pawn of the opposite color
+        // Verify an En Passant move is valid
+        if (enemyPawn.getName().equals(PAWN) &&
+                canCapturePiece(piece, enemyPawn) &&
+                enemyPawn.getValidEnPassant()){
+            // Verify the selected piece is going from being besides the enemy pawn
+            // To being one tile behind it
+            if (enemyRowPosition == oldRow && newCol == enemyPawn.getColY()){
+                // Remove the piece from the board
+                mBoard.setPieceAt(null, enemyPawn.getListPosition());
+                mAdapter.setGameBoard(mBoard.getGameBoardTiles());
+                return true;
+            }
+        }
+        return false;
     }
 
     // Change player labels to indicate turns
