@@ -71,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
 
     // TODO: Implement on saved instance state for rotation and background state
     // TODO: Optimize layout for horizontal orientation
-    // TODO: replace placeholder graphics
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
