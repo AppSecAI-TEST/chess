@@ -5,6 +5,7 @@ import android.os.Build;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -185,73 +186,14 @@ public class MainActivity extends AppCompatActivity {
         // Check position validity
         switch (piece.getName()){
             case PAWN:
-                int rowChangeValue;
-                if(piece.getColorCode() == WHITE){
-                    // White pieces can only move up on the board (towards row 0)
-                    rowChangeValue = -1;
-                } else { // Black pieces can only move down on the board (towards row 7)
-                    rowChangeValue = 1;
-                }
+                validMove = movePawn((PawnPiece) piece, newRow, newCol);
 
-                // Pawns can move 2 squares on the first move
-                int firstMoveRowChangeValue = rowChangeValue;
-                if(piece.hasMovedFromStart() == false){
-                    firstMoveRowChangeValue = rowChangeValue * 2;
-                }
-
-                // En passant is only valid when the pawn has used it's 2 space move
-                if (changeRow == firstMoveRowChangeValue){
-                    ((PawnPiece) piece).setValidEnPassant(true);
-                } else {
-                    ((PawnPiece) piece).setValidEnPassant(false);
-                }
-
-                // Pawns can only move one up or down in non-capture moves
-                // Evaluate both statements: changeRow == rowChangeValue (either 1 or -1)
-                // because a Pawn can move 1 on a regular turn,
-                // And changeRow == firstMoveRowChangeValue (2 or -2) can move 2 on a first
-                // move but does not HAVE to and can also move 1 instead.
-                // ChangeCol == 0 means there will be no capture this turn.
-                if((changeRow == rowChangeValue || changeRow == firstMoveRowChangeValue)
-                        && changeCol == 0){
-                    // Check for obstacles
-                    int i = oldRow;
-                    // Check if the target tile or the tile between (if 2 space move) is
-                    // occupied by another piece. Pawns cannot capture straight on.
-                    while (i != newRow){
-                        // Add or subtract 1 to traverse rows
-                        i += rowChangeValue;
-                        checkForNullPiece = mBoard.getPieceAtCoordinates(i, newCol);
-                        if (checkForNullPiece != null){
-                            validMove = false;
-                            return validMove;
-                        }
-                    }
-                    validMove = true;
-
-                // Pawns can capture pieces one row ahead and one column over.
-                } else if (changeRow == rowChangeValue && Math.abs(changeCol) == 1
-                        && mBoard.getPieceAtCoordinates(newRow, newCol) != null) {
-
-                    // Regular capture
-                    validMove = canCapturePiece(piece, mBoard.getPieceAtCoordinates(newRow, newCol));
-
-                // Pawns can also capture pieces En Passant--when an enemy pawn moves 2
-                // forward instead of 1, but moving 1 forward would have allowed
-                // the other player to capture.
-                } else if (changeRow == rowChangeValue && Math.abs(changeCol) == 1
-                        && mBoard.getPieceAtCoordinates(newRow, newCol) == null
-                        && mBoard.getPieceAtCoordinates(oldRow, newCol) != null) {
-                    // En Passant capture
-                    validMove = enPassant(piece, oldRow, newCol);
-                }
-                // Trigger change piece type when a pawn reaches enemy home row
+                // Trigger change piece type when a pawn reaches enemy home row.
                 if (validMove &&
                         (piece.getColorCode() == WHITE && newRow == 0) ||
                         (piece.getColorCode() == BLACK && newRow == 7)){
                     mPieceToMove = pawnPromotion(mPieceToMove);
                 }
-                break;
             case KNIGHT:
                 // Knights can move in an L shape in any direction
                 // Knights are the only piece that can jump other pieces
@@ -726,6 +668,125 @@ public class MainActivity extends AppCompatActivity {
         mPlayer2ScoreTv.setText(Integer.toString(mPlayer2Score));
     }
 
+    // Check for an complete a castling move
+    private boolean castling(Piece king, Piece rook, int oldKingColPosition, int newKingColPosition){
+        int changeValue = 1;
+        if (oldKingColPosition > newKingColPosition){
+            // if the old column is greater, we're moving down the board towards 0
+            changeValue = -1;
+        }
+
+        // Check that all tiles between the king and the rook are empty
+        for (int i = oldKingColPosition + changeValue; // Offset the column by +- 1 to avoid error
+             // of detecting the current piece
+             i > 0 && i < 7;
+             // limit range to avoid the error of detecting the rook
+             i = i + changeValue){
+            if (mBoard.getPieceAtCoordinates(king.getRowX(), i) != null){
+                return false;
+            }
+        }
+
+        mBoard.movePieceTo(rook, king.getRowX(), newKingColPosition - changeValue);
+        mAdapter.setGameBoard(mBoard.getGameBoardTiles());
+        return true;
+    }
+
+    // Change player labels to indicate turns
+    private void setLabelStyle(boolean player1Turn){
+        if (player1Turn == true){
+            if (Build.VERSION.SDK_INT < 23) {
+                mPlayer1Lbl.setTextAppearance(this, R.style.playerLabelActiveTurn);
+                mPlayer2Lbl.setTextAppearance(this, R.style.playerLabel);
+            } else {
+                mPlayer1Lbl.setTextAppearance(R.style.playerLabelActiveTurn);
+                mPlayer2Lbl.setTextAppearance(R.style.playerLabel);
+            }
+        } else {
+            if (Build.VERSION.SDK_INT < 23) {
+                mPlayer1Lbl.setTextAppearance(this, R.style.playerLabel);
+                mPlayer2Lbl.setTextAppearance(this, R.style.playerLabelActiveTurn);
+            } else {
+                mPlayer1Lbl.setTextAppearance(R.style.playerLabel);
+                mPlayer2Lbl.setTextAppearance(R.style.playerLabelActiveTurn);
+            }
+        }
+    }
+
+    // The logic to move a Pawn
+    private boolean movePawn(PawnPiece pawnToMove, int row, int col){
+        // Constants to hold the values for the amount of tiles a pawn may move.
+        final int STANDARD_MOVE = 1;
+        final int FIRST_MOVE = 2;
+
+        int rowChange = row - pawnToMove.getRowX();
+        int colChange = col - pawnToMove.getColY();
+
+        boolean validResult = false;
+
+        // Pawns can only move in one direction towards the enemy's home row.
+            //// pawnDirection will be negative for white pawns, since they can
+            //// only go upward on the board(towards row 0). pawnDirection will
+            //// be positive for black pawns, since they can only go downwards
+            //// on the board (towards row 7).
+        int pawnDirection = STANDARD_MOVE;
+        if(pawnToMove.getColorCode() == WHITE){
+            pawnDirection = STANDARD_MOVE * -1;
+        }
+
+        // Generally, pawns can only move 1 tile per move, but on their
+        // first move, they may move 2 tiles forward.
+        int firstMove = pawnDirection;
+        if(!pawnToMove.hasMovedFromStart()){
+            firstMove *= FIRST_MOVE;
+        }
+
+        // En passant is only valid when the pawn has used it's 2 space move.
+        if (Math.abs(rowChange) == FIRST_MOVE){
+            pawnToMove.setValidEnPassant(true);
+        } else {
+            pawnToMove.setValidEnPassant(false);
+        }
+
+        // On a standard, no-capture move, a pawn may move forward one tile, or
+        // move forward two tiles on their very first move.  When a pawn moves
+        // forward, it cannot capture or jump other pieces, so the tiles must
+        // be clear.
+        if (pawnToMove.getColY() == col &&
+                (rowChange == pawnDirection || rowChange == firstMove)) {
+            Piece checkForNullPiece;
+            // Check for obstacles
+            int i = pawnToMove.getRowX();
+            while (i != row) {
+                // Add or subtract 1 to traverse rows
+                i += pawnDirection;
+                checkForNullPiece = mBoard.getPieceAtCoordinates(i, col);
+                if (checkForNullPiece != null) {
+                    return false;
+                } else {
+                    validResult = true;
+                }
+            }
+
+        // Pawns can capture pieces one row ahead and one column over.
+        } else if(mBoard.getPieceAtCoordinates(row, col) != null &&
+                Math.abs(rowChange) == STANDARD_MOVE &&
+                Math.abs(colChange) == STANDARD_MOVE){
+            validResult = canCapturePiece(pawnToMove, mBoard.getPieceAtCoordinates(row, col));
+
+        // Pawns can also capture pieces En Passant--when an enemy pawn moves 2
+        // forward instead of 1, but moving 1 forward would have allowed
+        // the other player to capture. To do this move, the target tile must
+        // also be empty.
+        } else if (mBoard.getPieceAtCoordinates(row, col) == null &&
+                mBoard.getPieceAtCoordinates(pawnToMove.getRowX(), col) != null &&
+                Math.abs(rowChange) == STANDARD_MOVE &&
+                Math.abs(colChange) == STANDARD_MOVE){
+            validResult = enPassant(pawnToMove, col);
+        }
+        return validResult;
+    }
+
     // Change a pawn when it reaches the enemy's home row
     private Piece pawnPromotion(final Piece oldPawn){
         // Display an alert dialog so the user can select their new piece type
@@ -777,7 +838,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Check for and complete an en passant move
-    private boolean enPassant(Piece piece, int oldRow, int newCol){
+    private boolean enPassant(Piece piece, int newCol){
         // These are the rows in which you can find a pawn that
         // has made it's initial 2 space move
         int enemyRowPosition;
@@ -799,7 +860,7 @@ public class MainActivity extends AppCompatActivity {
                 enemyPawn.getValidEnPassant()){
             // Verify the selected piece is going from being besides the enemy pawn
             // To being one tile behind it
-            if (enemyRowPosition == oldRow && newCol == enemyPawn.getColY()){
+            if (enemyRowPosition == piece.getRowX() && newCol == enemyPawn.getColY()){
                 // Remove the piece from the board
                 mBoard.setPieceAt(null, enemyPawn.getListPosition());
                 mAdapter.setGameBoard(mBoard.getGameBoardTiles());
@@ -809,48 +870,29 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    // Check for an complete a castling move
-    private boolean castling(Piece king, Piece rook, int oldKingColPosition, int newKingColPosition){
-        int changeValue = 1;
-        if (oldKingColPosition > newKingColPosition){
-            // if the old column is greater, we're moving down the board towards 0
-            changeValue = -1;
-        }
-
-        // Check that all tiles between the king and the rook are empty
-        for (int i = oldKingColPosition + changeValue; // Offset the column by +- 1 to avoid error
-             // of detecting the current piece
-             i > 0 && i < 7;
-             // limit range to avoid the error of detecting the rook
-             i = i + changeValue){
-            if (mBoard.getPieceAtCoordinates(king.getRowX(), i) != null){
-                return false;
-            }
-        }
-
-        mBoard.movePieceTo(rook, king.getRowX(), newKingColPosition - changeValue);
-        mAdapter.setGameBoard(mBoard.getGameBoardTiles());
-        return true;
+    private void moveRook(){
+        //TODO: Refactor for cleaner code
     }
 
-    // Change player labels to indicate turns
-    private void setLabelStyle(boolean player1Turn){
-        if (player1Turn == true){
-            if (Build.VERSION.SDK_INT < 23) {
-                mPlayer1Lbl.setTextAppearance(this, R.style.playerLabelActiveTurn);
-                mPlayer2Lbl.setTextAppearance(this, R.style.playerLabel);
-            } else {
-                mPlayer1Lbl.setTextAppearance(R.style.playerLabelActiveTurn);
-                mPlayer2Lbl.setTextAppearance(R.style.playerLabel);
-            }
-        } else {
-            if (Build.VERSION.SDK_INT < 23) {
-                mPlayer1Lbl.setTextAppearance(this, R.style.playerLabel);
-                mPlayer2Lbl.setTextAppearance(this, R.style.playerLabelActiveTurn);
-            } else {
-                mPlayer1Lbl.setTextAppearance(R.style.playerLabel);
-                mPlayer2Lbl.setTextAppearance(R.style.playerLabelActiveTurn);
-            }
-        }
+    private void moveBishop(){
+        //TODO: Refactor for cleaner code
+
     }
+
+    private void moveKnight(){
+        //TODO: Refactor for cleaner code
+
+    }
+
+    private void moveQueen(){
+        //TODO: Refactor for cleaner code
+
+    }
+
+    private void moveKing(){
+        //TODO: Refactor for cleaner code
+
+    }
+
+
 }
