@@ -194,13 +194,9 @@ public class MainActivity extends AppCompatActivity {
                         (piece.getColorCode() == BLACK && newRow == 7)){
                     mPieceToMove = pawnPromotion(mPieceToMove);
                 }
+                break;
             case KNIGHT:
-                // Knights can move in an L shape in any direction
-                // Knights are the only piece that can jump other pieces
-                if ((Math.abs(changeRow) == 1 && Math.abs(changeCol) == 2) ||
-                        (Math.abs(changeRow) == 2 && Math.abs(changeCol) == 1)){
-                    validMove = true;
-                }
+                validMove = moveKnight(newRow - oldRow, newCol - oldCol);
                 break;
             case BISHOP:
                 // Bishops can move in any direction diagonally
@@ -870,16 +866,22 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
+    // The logic to move a Knight
+    private boolean moveKnight(int rowChange, int colChange){
+        // Knights can move in an L shape in any direction.
+        // Knights are the only piece that can jump other pieces.
+        if ((Math.abs(rowChange) == 1 && Math.abs(colChange) == 2) ||
+                (Math.abs(rowChange) == 2 && Math.abs(colChange) == 1)){
+            return true;
+        }
+        return false;
+    }
+
     private void moveRook(){
         //TODO: Refactor for cleaner code
     }
 
     private void moveBishop(){
-        //TODO: Refactor for cleaner code
-
-    }
-
-    private void moveKnight(){
         //TODO: Refactor for cleaner code
 
     }
