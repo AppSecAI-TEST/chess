@@ -181,9 +181,6 @@ public class MainActivity extends AppCompatActivity {
         int changeRow = newRow - oldRow;
         int changeCol = newCol - oldCol;
 
-        Piece checkForNullPiece;
-        int r, c;
-
         // Check position validity
         switch (piece.getName()) {
             case PAWN:
@@ -197,10 +194,10 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
             case KNIGHT:
-                validMove = moveKnight(newRow - oldRow, newCol - oldCol);
+                validMove = moveKnight(changeRow, changeCol);
                 break;
             case BISHOP:
-                if (Math.abs(newRow - oldRow) == Math.abs(newCol - oldCol)) {
+                if (Math.abs(changeRow) == Math.abs(changeCol)) {
 
                     // Determine how to increment or decrement each row
                     // and column change when we move the Bishop.
@@ -224,9 +221,9 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
             case ROOK:
-                if ((newRow - oldRow == 0 && newCol - oldCol != 0) ||
-                        (newCol - oldCol == 0 && newRow - oldRow != 0)) {
-                    validMove = moveRook(oldRow, newRow, oldCol, newCol, piece);
+                if ((changeRow == 0 && changeCol != 0) ||
+                        (changeCol == 0 && changeRow != 0)) {
+                    validMove = moveRook(piece, oldRow, newRow, oldCol, newCol);
                 }
                 break;
             case QUEEN:
@@ -235,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
                 if ((changeRow == 0 && changeCol != 0) ||
                         (changeCol == 0 && changeRow != 0)) {
                     // Rook move logic
-                    validMove = moveRook(oldRow, newRow, oldCol, newCol, piece);
+                    validMove = moveRook(piece, oldRow, newRow, oldCol, newCol);
 
                 } else if (Math.abs(changeRow) == Math.abs(changeCol)) {
                     // Bishop move logic
@@ -263,44 +260,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case KING:
                 // TODO: Check for king in check
-                // Kings can move to any adjacent tile
-                // Kings can move either one up or down and one or none left or right
-                if ((Math.abs(changeRow) == 1 && Math.abs(changeCol) <= 1)
-                        // Or kings can move one left or right and one or none up and down
-                        || (Math.abs(changeCol) == 1 && Math.abs(changeRow) <= 1)) {
-                    validMove = true;
-                } else if (piece.hasMovedFromStart() == false
-                        // A king can do a Castling move when:
-                        // (A) They have not yet moved from their start position
-                        // (B) Not in check and will not move into a checked position
-                        // (C) The rook has not moved from start
-                        // (D) The spaces between the King and Rook are not occupied
-
-                        // In Castling, the King moves 2 tiles either left or right
-                        // And the Rook on that side of the board moves to the tile
-                        // on the opposite side of the King
-                        && changeRow == 0 && Math.abs(changeCol) == 2) {
-
-                    int rookColPosition;
-                    if (changeCol > 0) {
-                        // If the change row value is positive, the King is moving
-                        // right so we should use the right rook, which is at column 7
-                        rookColPosition = 7;
-                    } else {
-                        // If the change row value is negative, the King is moving
-                        // left so we should use the left rook, which is at column 0
-                        rookColPosition = 0;
-                    }
-
-                    // Verify there is a piece at the Rook's start position
-                    // Verify it is a Rook and has not yet moved from start
-                    Piece castlingRook = mBoard.getPieceAtCoordinates(newRow, rookColPosition);
-                    if (castlingRook != null
-                            && castlingRook.getName() == ROOK
-                            && castlingRook.hasMovedFromStart() == false) {
-                        validMove = castling(piece, castlingRook, oldCol, newCol);
-                    }
-                }
+                validMove = moveKing(piece, changeRow, newRow, changeCol, oldCol, newCol);
                 break;
         }
         return validMove;
@@ -585,7 +545,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // The logic to move a Rook
-    private boolean moveRook(int oldRow, int newRow, int oldCol, int newCol, Piece piece) {
+    private boolean moveRook(Piece piece, int oldRow, int newRow, int oldCol, int newCol) {
         // Rooks can only move in a straight line either horizontally across a row
         // or vertically across a column.
         boolean result = false;
@@ -681,10 +641,50 @@ public class MainActivity extends AppCompatActivity {
             return result;
     }
 
-    private void moveKing() {
-        //TODO: Refactor for cleaner code
+    private boolean moveKing(Piece piece,
+                             int changeRow, int newRow,
+                             int changeCol, int oldCol, int newCol) {
+        // Kings can move to any adjacent tile
+        // Kings can move either one up or down and one or none left or right
 
+        boolean result = false;
+
+        if ((Math.abs(changeRow) == 1 && Math.abs(changeCol) <= 1)
+                // Or kings can move one left or right and one or none up and down
+                || (Math.abs(changeCol) == 1 && Math.abs(changeRow) <= 1)) {
+            result = true;
+        } else if (piece.hasMovedFromStart() == false
+                // A king can do a Castling move when:
+                // (A) They have not yet moved from their start position
+                // (B) Not in check and will not move into a checked position
+                // (C) The rook has not moved from start
+                // (D) The spaces between the King and Rook are not occupied
+
+                // In Castling, the King moves 2 tiles either left or right
+                // And the Rook on that side of the board moves to the tile
+                // on the opposite side of the King
+                && (changeRow) == 0 && Math.abs(changeCol) == 2) {
+
+            int rookColPosition;
+            if (changeCol > 0) {
+                // If the change row value is positive, the King is moving
+                // right so we should use the right rook, which is at column 7
+                rookColPosition = 7;
+            } else {
+                // If the change row value is negative, the King is moving
+                // left so we should use the left rook, which is at column 0
+                rookColPosition = 0;
+            }
+
+            // Verify there is a piece at the Rook's start position
+            // Verify it is a Rook and has not yet moved from start
+            Piece castlingRook = mBoard.getPieceAtCoordinates(newRow, rookColPosition);
+            if (castlingRook != null
+                    && castlingRook.getName() == ROOK
+                    && castlingRook.hasMovedFromStart() == false) {
+                result = castling(piece, castlingRook, oldCol, newCol);
+            }
+        }
+        return result;
     }
-
-
 }
